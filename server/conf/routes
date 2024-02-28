@@ -5,6 +5,12 @@
 # Home page
 GET        /                             controllers.Application.index
 
+GET         /task5      controllers.task5.login     
+POST        /task5       controllers.task5.validateInfo  
+POST        /createUser     controllers.task5.createUser
+
+GET         /messages      controllers.task5.showMessages 
+
 # Prefix must match `play.assets.urlPrefix`
 GET        /assets/*file                 controllers.Assets.at(file)
 GET        /versionedAssets/*file        controllers.Assets.versioned(path="/public", file: Asset)

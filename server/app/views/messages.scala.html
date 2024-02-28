@@ -1,0 +1,14 @@
+@* messages Template File*@
+@(globalMessages: Seq[String])(implicit request: RequestHeader, flash:Flash)
+
+@main("messages"){
+
+<h2> Global Messages </h2>
+<ul>
+    @for(gMessage <- globalMessages){
+        <li>@gMessage </li>
+    }
+</ul>
+   
+
+}
