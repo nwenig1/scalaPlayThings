@@ -4,10 +4,9 @@ import java.util.LinkedList
 
 object Task5MemoryModel {
   private val users = mutable.Map[String, String] ("web" -> "apps", "mlewis" -> "prof")
- // private val localMessages = mutable.Map[String, List[String]] ()
-//  private val globalMessages = mutable.Map[String, List[String]] ("mlewis" ->List("This is a global message!", "I love Scala"),"web"-> List("Hello everyone!")
-//USE TUPLES SEXY SCALA 
-  private val globalMessages =  List[String] ("This is a global message", "hello everyone!")
+  private val localMessages = mutable.Map[String, List[(String, String)]]("mlewis" -> List(("web", "hello mlewis")))
+  
+  private var globalMessages =  List[(String, String)] (("mlewis", "This is a global message"), ("web", "hello everyone!"))
 
 
     def validateInfo(username:String, password:String) : Boolean = {
@@ -21,11 +20,29 @@ object Task5MemoryModel {
             true 
         }
     }
-  //  def getGlobalMessages(): mutable.Map[String,Seq[String]] = {
-      def getGlobalMessages() : Seq[String] = {
+ 
+      def getGlobalMessages() : Seq[(String, String)] = {
         globalMessages
     }
-   // def getLocalMessages(username:String) : mutable.Map[String, List[String]] = {
+    def getLocalMessages(username : String) : Seq[(String, String)] = {
+      localMessages.get(username).getOrElse(Nil)
+    }
+    def sendGlobalMessage(username: String, gMessage : String): Unit = {
+      globalMessages= globalMessages.appended((username, gMessage))
+    }
+    def sendLocalMessage(username : String, recipientName : String, lMessage : String):Unit = {
+      recipientName.trim()
+      println(username, recipientName, lMessage)
+      if(doesUserExist(username) && doesUserExist(recipientName)){
+      localMessages(recipientName) = (username, lMessage) :: localMessages.get(recipientName).getOrElse(List())
+      println(localMessages)
+      } else{
+        Nil
+      }
 
-   // }
+  }
+    def doesUserExist(username: String) : Boolean ={
+      println(users.contains(username) + "on name " + username)
+      return users.contains(username)
+    }
 }

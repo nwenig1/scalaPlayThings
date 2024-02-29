@@ -1,14 +1,42 @@
 @* messages Template File*@
-@(globalMessages: Seq[String])(implicit request: RequestHeader, flash:Flash)
+@(globalMessages: Seq[(String, String)], localMessages: Seq[(String, String)])(implicit request: RequestHeader, flash:Flash)
 
 @main("messages"){
 
 <h2> Global Messages </h2>
 <ul>
     @for(gMessage <- globalMessages){
-        <li>@gMessage </li>
+        <li>@gMessage._1 says @gMessage._2 </li>
     }
 </ul>
+
+<h2> Your Messages: </h2>
+<ul>
+@for(lMessage <- localMessages){
+    <li> @lMessage._1 says @lMessage._2 </li>
+}
+</ul>
+<h2> Write a global message below:</h2>
+<form method = "post" action = "@routes.task5.sendGlobalMessage">
+    @helper.CSRF.formField
+    Global Message Content: <input type="text" name ="globalMessage"> </input>
+    <br>
+    <input type="submit"> </input>
+</form>
+
+<h2> Write a message to another user below:</h2>
+<form method = "post" action = "@routes.task5.sendLocalMessage">
+    @helper.CSRF.formField
+    Reciever Name:<input type= "text" name = "recipientName"> </input> 
+    <br>
+    Local Message Content:<input type = "text" name = "localMessage"> </input>
+    <br>
+    <input type = "submit"> </input> 
+
+</form>
+<div>
+    <a href="@routes.task5.logout"> Logout</a>
+</div>
    
 
 }
