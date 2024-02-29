@@ -6,6 +6,7 @@ object Task5MemoryModel {
   private val users = mutable.Map[String, String] ("web" -> "apps", "mlewis" -> "prof")
  // private val localMessages = mutable.Map[String, List[String]] ()
 //  private val globalMessages = mutable.Map[String, List[String]] ("mlewis" ->List("This is a global message!", "I love Scala"),"web"-> List("Hello everyone!")
+//USE TUPLES SEXY SCALA 
   private val globalMessages =  List[String] ("This is a global message", "hello everyone!")
 
 
