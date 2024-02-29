@@ -5,7 +5,7 @@ import shared.SharedMessages
 import play.api.mvc._
 import models.Task5MemoryModel
 
-
+//2049.375
 @Singleton
 class task5 @Inject() (cc:ControllerComponents) extends AbstractController(cc) {
   
@@ -68,8 +68,16 @@ class task5 @Inject() (cc:ControllerComponents) extends AbstractController(cc) {
                     println(recipient)
                     println(lMessage)
                     Task5MemoryModel.sendLocalMessage(username, recipient, lMessage)
+                  //mem model doesn't do anything if invalid recipient, but this allows 
+                  //for more helpful error flashes 
+                    if(username.equals(recipient)){
+                     Redirect(routes.task5.showMessages).flashing("success" -> "why send a message to yourself?")
+                 }else if(Task5MemoryModel.doesUserExist(recipient)){
                     Redirect(routes.task5.showMessages).flashing("success" -> "Message Sent!")
-                }.getOrElse(Redirect(routes.task5.showMessages)).flashing("success" -> "Message Sent!")
+                    } else{
+                    Redirect(routes.task5.showMessages).flashing("error" -> "There was an error. Double check the recipient username?")
+                    }
+                }.getOrElse(Redirect(routes.task5.showMessages))
             }.getOrElse(Redirect(routes.task5.login))
         }
 

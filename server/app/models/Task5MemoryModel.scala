@@ -4,11 +4,11 @@ import java.util.LinkedList
 
 object Task5MemoryModel {
   private val users = mutable.Map[String, String] ("web" -> "apps", "mlewis" -> "prof")
-  private val localMessages = mutable.Map[String, List[(String, String)]]("mlewis" -> List(("web", "hello mlewis")))
+  private val localMessages = mutable.Map[String, List[(String, String)]]("web" -> List(("mlewis", "Hello Web! I love scala")))
   
-  private var globalMessages =  List[(String, String)] (("mlewis", "This is a global message"), ("web", "hello everyone!"))
-
-
+  private var globalMessages =  List[(String, String)] (("web", "This is a global message"), 
+                                                        ("mlewis", "hello everyone! Scala is cool!"),
+                                                        ("mlewis", "Python sucks"))
     def validateInfo(username:String, password:String) : Boolean = {
         users.get(username).map(_== password).getOrElse(false)
     }
@@ -33,16 +33,12 @@ object Task5MemoryModel {
     def sendLocalMessage(username : String, recipientName : String, lMessage : String):Unit = {
       recipientName.trim()
       println(username, recipientName, lMessage)
-      if(doesUserExist(username) && doesUserExist(recipientName)){
+      if(doesUserExist(username) && doesUserExist(recipientName)){ //if valid names on both ends, add to model (flashing in controller)
       localMessages(recipientName) = (username, lMessage) :: localMessages.get(recipientName).getOrElse(List())
       println(localMessages)
-      } else{
-        Nil
-      }
-
+      } 
   }
     def doesUserExist(username: String) : Boolean ={
-      println(users.contains(username) + "on name " + username)
       return users.contains(username)
     }
 }
