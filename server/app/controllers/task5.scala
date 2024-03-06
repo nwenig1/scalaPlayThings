@@ -30,6 +30,9 @@ class task5 @Inject() (cc:ControllerComponents) extends AbstractController(cc) {
         postVals.map { args =>
             val username = args("username").head
             val password = args("password").head
+            if(username.length() == 0 || password.length() == 0){
+                Redirect(routes.task5.login).flashing("error" -> "Username or password can't be empty")
+            }
             if(Task5MemoryModel.createUser(username, password)){
                 Redirect(routes.task5.showMessages).withSession("username" -> username).flashing("success" -> s"Account created for user $username!")
             }else{

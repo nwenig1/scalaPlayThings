@@ -32,12 +32,11 @@ object Task5MemoryModel {
     }
     def sendLocalMessage(username : String, recipientName : String, lMessage : String):Unit = {
       recipientName.trim()
-      println(username, recipientName, lMessage)
       if(doesUserExist(username) && doesUserExist(recipientName)){ //if valid names on both ends, add to model (flashing in controller)
       localMessages(recipientName) = (username, lMessage) :: localMessages.get(recipientName).getOrElse(List())
-      println(localMessages)
       } 
   }
+    //helper method for sending local messages 
     def doesUserExist(username: String) : Boolean ={
       return users.contains(username)
     }
