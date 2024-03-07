@@ -8,11 +8,11 @@
 <body>
     <h2> Login here!</h2></h>
     <div class="form">
-    <form method="post" action="@routes.task5.validateInfo">
+    <form method="post" action="@routes.task5.validateInfo" id="login">
         @helper.CSRF.formField
-        Username <input type="text" name="username"></input>
+        Username <input type="text" name="username"id="loginUsername"></input>
         <br>
-        Password <input type="password" name = "password"> </input>
+        Password <input type="password" name = "password" id="loginPassword"> </input>
         <br>
         <input type="submit"></input>
     </form>
@@ -20,11 +20,11 @@
 <br>
 <h2> Don't have an account? Make one below!</h2>
     <div class="form">
-<form method="post" action="@routes.task5.createUser">
+<form method="post" action="@routes.task5.createUser" id="createAccount">
         @helper.CSRF.formField
-        Username <input type="text" name="username"></input>
+        Username <input type="text" name="username" id="createAccountUsername"></input>
         <br>
-        Password <input type="password" name = "password"> </input>
+        Password <input type="password" name = "password" id="createAccountPassword"> </input>
         <br>
         <input type="submit"></input>
     </form>
