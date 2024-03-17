@@ -1,0 +1,7 @@
+@()(implicit request:RequestHeader, flash: Flash)
+
+@main("task6"){
+<input type = "hidden" id="ws-route" value="@routes.task6.socket.absoluteURL()"
+<canvas width="250" height="250" id="sprite-canvas"></canvas>
+<script src="@routes.Assets.versioned("javascript/task6.js")"></script>
+}

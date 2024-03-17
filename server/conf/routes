@@ -5,15 +5,17 @@
 # Home page
 GET        /                             controllers.Application.index
 
+# Routes for task 5
 GET         /task5      controllers.task5.login     
 POST        /task5       controllers.task5.validateInfo  
 POST        /createUser     controllers.task5.createUser
-
 GET         /messages      controllers.task5.showMessages 
 POST        /globalMessage  controllers.task5.sendGlobalMessage
 POST        /localMessage   controllers.task5.sendLocalMessage
-
 GET         /logout        controllers.task5.logout
+
+# Routes for task 7
+GET         /task6      controllers.task6.canvas
 
 # Prefix must match `play.assets.urlPrefix`
 GET        /assets/*file                 controllers.Assets.at(file)
