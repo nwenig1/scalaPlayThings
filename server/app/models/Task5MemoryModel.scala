@@ -30,11 +30,20 @@ object Task5MemoryModel {
     def sendGlobalMessage(username: String, gMessage : String): Unit = {
       globalMessages= globalMessages.appended((username, gMessage))
     }
-    def sendLocalMessage(username : String, recipientName : String, lMessage : String):Unit = {
+    def sendLocalMessage(username : String, recipientName : String, lMessage : String):Unit = { //FOR TASK 5
       recipientName.trim()
       if(doesUserExist(username) && doesUserExist(recipientName)){ //if valid names on both ends, add to model (flashing in controller)
       localMessages(recipientName) = (username, lMessage) :: localMessages.get(recipientName).getOrElse(List())
       } 
+  }
+  //variant that returns a boolean for task 8, since I get the messages thru ajax, not returning w/ model
+  def sendLocalMessageTask8(username: String, recipientName : String, lMessage: String): Boolean = {
+    if(doesUserExist(username) && doesUserExist(recipientName)){
+      localMessages(recipientName) = (username, lMessage) :: localMessages.get(recipientName).getOrElse(List())
+      true 
+    }else{
+      false 
+    }
   }
     //helper method for sending local messages 
     def doesUserExist(username: String) : Boolean ={

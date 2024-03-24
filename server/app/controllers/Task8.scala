@@ -68,14 +68,14 @@ class Task8 @Inject() (cc:ControllerComponents) extends AbstractController(cc) {
     }
     def sendLocalMessage = Action { implicit request =>
         withSessionUsername { username =>
+            println("WithSessionUsername passed, username is : " + username)
             withJsonBody[LocalMessage] { lm=>
-                //this is stupid, but task5mem model returns the messages as a list, i need a boolean
-                val results = Task5MemoryModel.sendLocalMessage(username, lm.reciever, lm.contents)
-                if(results.length != 0){
-                    Ok(Json.toJson(true))
-                }else{
-                    Ok(Json.toJson(false))
-                }
+            println("Through withJsonBody, lm data is " + lm.reciever + " " + lm.contents)
+               if(Task5MemoryModel.sendLocalMessageTask8(username, lm.reciever, lm.contents)){
+                Ok(Json.toJson(true))
+               } else{
+                Ok(Json.toJson(false))
+               }
                 }
             }
         }

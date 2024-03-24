@@ -158,6 +158,7 @@ class MessagesComponent extends React.Component{
         })
     }
     sendLocalMessage(e){
+        console.log("Form values pre-fetch: " +this.state.sendLocalUsername + " " + this.state.sendLocalContents); 
         fetch(sendLocalMessageRoute, {
             method: 'POST', 
             headers: {'Content-Type' : 'application/json', 'Csrf-Token' : csrfToken}, 
@@ -170,10 +171,6 @@ class MessagesComponent extends React.Component{
             }
         })
     }
-
-
-
-
     handleChange(e){
         this.setState({[e.target['id']]: e.target.value})
     }
