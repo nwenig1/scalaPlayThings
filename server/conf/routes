@@ -14,8 +14,16 @@ POST        /globalMessage  controllers.task5.sendGlobalMessage
 POST        /localMessage   controllers.task5.sendLocalMessage
 GET         /logout        controllers.task5.logout
 
-# Routes for task 7
-GET         /task6      controllers.task6.canvas
+# Routes for task 7 will go here 
+
+# Routes for task 8 
+GET         /task8          controllers.Task8.load
+POST        /login          controllers.Task8.login
+POST        /create         controllers.Task8.create
+GET         /getGlobalMessages      controllers.Task8.getGlobalMessages
+GET         /getLocalMessages      controllers.Task8.getLocalMessages
+POST        /sendGlobalMessage      controllers.Task8.sendGlobalMessage
+POST        /sendLocalMessage       controllers.Task8.sendLocalMessage
 
 # Prefix must match `play.assets.urlPrefix`
 GET        /assets/*file                 controllers.Assets.at(file)
