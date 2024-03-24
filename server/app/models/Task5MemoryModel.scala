@@ -5,7 +5,7 @@ import java.util.LinkedList
 object Task5MemoryModel {
   private val users = mutable.Map[String, String] ("web" -> "apps", "mlewis" -> "prof")
   private val localMessages = mutable.Map[String, List[(String, String)]]("web" -> List(("mlewis", "Hello Web! I love scala")))
-  
+
   private var globalMessages =  List[(String, String)] (("web", "This is a global message"), 
                                                         ("mlewis", "hello everyone! Scala is cool!"),
                                                         ("mlewis", "Python sucks"))

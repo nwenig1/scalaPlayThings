@@ -70,13 +70,13 @@ class Task8 @Inject() (cc:ControllerComponents) extends AbstractController(cc) {
         withSessionUsername { username =>
             println("WithSessionUsername passed, username is : " + username)
             withJsonBody[LocalMessage] { lm=>
-            println("Through withJsonBody, lm data is " + lm.reciever + " " + lm.contents)
-               if(Task5MemoryModel.sendLocalMessageTask8(username, lm.reciever, lm.contents)){
-                Ok(Json.toJson(true))
-               } else{
-                Ok(Json.toJson(false))
-               }
+                println("Through withJsonBody, lm data is " + lm.reciever + " " + lm.contents)
+                    if(Task5MemoryModel.sendLocalMessageTask8(username, lm.reciever, lm.contents)){
+                    Ok(Json.toJson(true))
+                    } else{
+                    Ok(Json.toJson(false))
                 }
             }
         }
+    }
 }

@@ -111,26 +111,28 @@ class MessagesComponent extends React.Component{
     render(){
         return ce('div', null, 
         ce('div',  {id:"seeGlobal"}, 
-        ce('h2', null, "Global Messages:"),
-        ce('ul', null, 
-            this.state.globalMessages.map((globalMessage) => ce('li', null, globalMessage[0] + " says " + globalMessage[1]))
-            )), 
+            ce('h2', null, "Global Messages:"),
+            ce('ul', null, this.state.globalMessages.map((globalMessage) => ce('li', null, globalMessage[0] + " says " + globalMessage[1])))
+            ), //end see global div  
         ce('div', {id: "seeLocal"}, 
-        ce('h2', null, "Local Messages:"),
-        ce('ul', null, 
-            this.state.localMessages.map((localMessage) => ce('li', null, localMessage[0] + " says " + localMessage[1])))
-            ), 
+            ce('h2', null, "Local Messages:"),
+            ce('ul', null, this.state.localMessages.map((localMessage) => ce('li', null, localMessage[0] + " says " + localMessage[1])))
+            ),  //end see local div 
         ce('div', {id:"sendGlobal"}, 
             ce('input', {type: "text", value:this.state.sendGlobalForm,id:"sendGlobalForm", onChange: e=>this.handleChange(e)}), 
             ce('br'), 
             ce('button', {onClick: e=> this.sendGlobalMessage(e)},"Send Global Message"), 
-            ce('span', null,this.state.sendMessageFeedback)), 
+            ), //end send global div 
         ce('div', {id: "sendLocal"}, 
+            "Recipient username", 
             ce('input', {type: "text", value:this.state.sendLocalUsername,id:"sendLocalUsername", onChange: e=>this.handleChange(e)}),
             ce('br'), 
+            "Message contents", 
             ce('input', {type:"text", value:this.state.sendLocalContents, id:"sendLocalContents", onChange: e=> this.handleChange(e)}), 
             ce('br'), 
-            ce('button', {onClick: e=> this.sendLocalMessage(e)}, "Send Local Message")));  
+            ce('button', {onClick: e=> this.sendLocalMessage(e)}, "Send Local Message")),
+            ce('span', null, this.state.sendMessageFeedback)
+            );  
     }
     getGlobalMessages(){
         fetch(getGlobalMessagesRoute).then(res=>res.json()).then(globalMessages=>{
