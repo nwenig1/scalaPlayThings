@@ -22,7 +22,9 @@ POST        /login          controllers.Task8.login
 POST        /create         controllers.Task8.create
 GET         /getGlobalMessages      controllers.Task8.getGlobalMessages
 GET         /getLocalMessages      controllers.Task8.getLocalMessages
++ nocsrf
 POST        /sendGlobalMessage      controllers.Task8.sendGlobalMessage
++ nocsrf
 POST        /sendLocalMessage       controllers.Task8.sendLocalMessage
 
 # Prefix must match `play.assets.urlPrefix`

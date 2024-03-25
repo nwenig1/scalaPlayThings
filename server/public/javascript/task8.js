@@ -58,7 +58,7 @@ class LoginComponent extends React.Component{
         ce('input', { type: "password", id: "createPass", value: this.state.createPass, onChange: e => this.changerHandler(e) }),
         ce('br'),
         ce('button', { onClick: e => this.createUser(e) }, 'Create User'),
-        ce('span', {id: "login-message"}, this.state.createMessage), 
+        ce('span', {id: "create-message"}, this.state.createMessage), 
     );
     }
     changerHandler(e) {
@@ -131,7 +131,8 @@ class MessagesComponent extends React.Component{
             ce('input', {type:"text", value:this.state.sendLocalContents, id:"sendLocalContents", onChange: e=> this.handleChange(e)}), 
             ce('br'), 
             ce('button', {onClick: e=> this.sendLocalMessage(e)}, "Send Local Message")),
-            ce('span', null, this.state.sendMessageFeedback)
+            ce('p', null, this.state.sendMessageFeedback),
+            ce('button', {onClick: e=> this.logout(e)}, "Logout")
             );  
     }
     getGlobalMessages(){
@@ -141,7 +142,6 @@ class MessagesComponent extends React.Component{
     }
     getLocalMessages(){
         fetch(getLocalMessagesRoute).then(res=>res.json()).then(localMessages =>{
-            console.log(localMessages); 
             this.setState({ localMessages })
         }); 
     }
@@ -159,14 +159,16 @@ class MessagesComponent extends React.Component{
             }
         })
     }
-    sendLocalMessage(e){
-        console.log("Form values pre-fetch: " +this.state.sendLocalUsername + " " + this.state.sendLocalContents); 
+    sendLocalMessage(e){ 
+        const reciever = this.state.sendLocalUsername
+        const contents = this.state.sendLocalContents
         fetch(sendLocalMessageRoute, {
             method: 'POST', 
             headers: {'Content-Type' : 'application/json', 'Csrf-Token' : csrfToken}, 
-            body: JSON.stringify(this.state.sendLocalUsername, this.state.sendLocalContents)
-        }).then(res=>res.json()).then(data=>{
-            if(data){
+            body: JSON.stringify({reciever, contents})
+        }).then(res=>res.text()).then(data=>{
+            if(data === "true"){ // i love javascript 
+                this.getLocalMessages(); 
                 this.setState({sendLocalUsername: "", sendLocalContents: "", sendMessageFeedback: "Local Message Sent!"}); 
             }else{
                 this.setState({sendMessageFeedback: "There was an error"})
@@ -175,6 +177,9 @@ class MessagesComponent extends React.Component{
     }
     handleChange(e){
         this.setState({[e.target['id']]: e.target.value})
+    }
+    logout(e){
+        this.props.doLogout(); 
     }
   
 
