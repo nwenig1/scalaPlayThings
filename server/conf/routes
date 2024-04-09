@@ -27,6 +27,17 @@ POST        /sendGlobalMessage      controllers.Task8.sendGlobalMessage
 + nocsrf
 POST        /sendLocalMessage       controllers.Task8.sendLocalMessage
 
+# Routes for Task 9 
+GET         /task9          controllers.Task9.load
+POST        /login9          controllers.Task9.login
+POST        /create9         controllers.Task9.create
+GET         /getGlobalMessages9      controllers.Task9.getGlobalMessages
+GET         /getLocalMessages9      controllers.Task9.getLocalMessages
++ nocsrf
+POST        /sendGlobalMessage9      controllers.Task9.sendGlobalMessage
++ nocsrf
+POST        /sendLocalMessage9       controllers.Task9.sendLocalMessage
+
 # Prefix must match `play.assets.urlPrefix`
 GET        /assets/*file                 controllers.Assets.at(file)
 GET        /versionedAssets/*file        controllers.Assets.versioned(path="/public", file: Asset)
