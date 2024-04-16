@@ -38,8 +38,8 @@ class LoginComponent extends React.Component{
    
     render(){
         return ce('div', null,
-        ce('p', null, 'Task 8 w/ react'),
-        ce('h2', null, 'Login::'),
+        ce('p', null, 'Task 9 w/ react and a database!'),
+        ce('h2', null, 'Login:'),
         ce('br'),
         'Username: ',
         ce('input', { type: "text", id: "loginName", value: this.state.loginName, onChange: e => this.changerHandler(e) }),
@@ -116,7 +116,7 @@ class MessagesComponent extends React.Component{
             ), //end see global div  
         ce('div', {id: "seeLocal"}, 
             ce('h2', null, "Local Messages:"),
-            ce('ul', null, this.state.localMessages.map((localMessage) => ce('li', null, localMessage[0] + " says " + localMessage[1])))
+            ce('ul', null, this.state.localMessages.map((localMessage) => ce('li', null, localMessage.sender + " says " + localMessage.contents)))
             ),  //end see local div 
         ce('div', {id:"sendGlobal"}, 
             ce('input', {type: "text", value:this.state.sendGlobalForm,id:"sendGlobalForm", onChange: e=>this.handleChange(e)}), 
@@ -142,6 +142,7 @@ class MessagesComponent extends React.Component{
     }
     getLocalMessages(){
         fetch(getLocalMessagesRoute).then(res=>res.json()).then(localMessages =>{
+            console.log(localMessages)
             this.setState({ localMessages })
         }); 
     }

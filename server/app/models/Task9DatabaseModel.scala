@@ -8,7 +8,35 @@ import scala.concurrent.Future
 import org.mindrot.jbcrypt.BCrypt
 
 class Task9DatabaseModel(db: Database)(implicit ec: ExecutionContext) {
+  
   def validateUser(username: String, password: String) : Future[Option[Int]] = {
-    ???
+    val matches = db.run(Task9user.filter(userRow => userRow.username === username).result)
+    matches.map(userRows => userRows.headOption.flatMap{
+      userRow => if(BCrypt.checkpw(password, userRow.password)) Some(userRow.userid) else None
+    })
   }
+  def createUser(username: String, password: String) : Future[Option[Int]] = {
+    print("Create user username is " + username + " and password is " + password)
+    val matches = db.run(Task9user.filter(userRow => userRow.username === username).result)
+    matches.flatMap{ userRows =>
+      if(userRows.isEmpty){
+        db.run(Task9user += Task9userRow(-1, username, BCrypt.hashpw(password, BCrypt.gensalt())))
+        .flatMap { addCount =>
+          if(addCount > 0) db.run(Users.filter(userRow => userRow.username === username).result)
+        .map(_.headOption.map(_.id))
+      else Future.successful(None)
+    }
+        
+      } else Future.successful(None)
+    }
+  }
+  def getLocalMessages(username:String ) : Future[Seq[LocalMessage]] = {
+   val messages = db.run(Localmessages.filter(lm => lm.lmsgreceiver === username).result)
+        messages.map(localMessages => localMessages.map(localMessage => LocalMessage(localMessage.lmsgsender, localMessage.lmsgreceiver, localMessage.lmsgcontent)))
+
 }
+    
+           
+
+  }
+

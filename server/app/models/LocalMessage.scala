@@ -1,3 +1,3 @@
 package models
 
-case class LocalMessage(reciever: String, contents: String)
+case class LocalMessage(sender: String, reciever: String, contents: String)

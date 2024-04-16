@@ -14,35 +14,35 @@ trait Tables {
   import slick.jdbc.{GetResult => GR}
 
   /** DDL for all tables. Call .create to execute. */
-  lazy val schema: profile.SchemaDescription = Globalmessages.schema ++ Items.schema ++ Localmessages.schema ++ Task8user.schema ++ Users.schema
+  lazy val schema: profile.SchemaDescription = Globalmessages.schema ++ Items.schema ++ Localmessages.schema ++ Task9user.schema ++ Users.schema
   @deprecated("Use .schema instead of .ddl", "3.0")
   def ddl = schema
 
   /** Entity class storing rows of table Globalmessages
    *  @param gmsgid Database column gmsgid SqlType(serial), AutoInc, PrimaryKey
-   *  @param gmsgsender Database column gmsgsender SqlType(varchar), Length(255,true), Default(None)
-   *  @param gmsgcontent Database column gmsgcontent SqlType(text), Default(None) */
-  case class GlobalmessagesRow(gmsgid: Int, gmsgsender: Option[String] = None, gmsgcontent: Option[String] = None)
+   *  @param gmsgsender Database column gmsgsender SqlType(varchar), Length(255,true)
+   *  @param gmsgcontent Database column gmsgcontent SqlType(text) */
+  case class GlobalmessagesRow(gmsgid: Int, gmsgsender: String, gmsgcontent: String)
   /** GetResult implicit for fetching GlobalmessagesRow objects using plain SQL queries */
-  implicit def GetResultGlobalmessagesRow(implicit e0: GR[Int], e1: GR[Option[String]]): GR[GlobalmessagesRow] = GR{
+  implicit def GetResultGlobalmessagesRow(implicit e0: GR[Int], e1: GR[String]): GR[GlobalmessagesRow] = GR{
     prs => import prs._
-    GlobalmessagesRow.tupled((<<[Int], <<?[String], <<?[String]))
+    GlobalmessagesRow.tupled((<<[Int], <<[String], <<[String]))
   }
   /** Table description of table globalmessages. Objects of this class serve as prototypes for rows in queries. */
   class Globalmessages(_tableTag: Tag) extends profile.api.Table[GlobalmessagesRow](_tableTag, "globalmessages") {
     def * = (gmsgid, gmsgsender, gmsgcontent).<>(GlobalmessagesRow.tupled, GlobalmessagesRow.unapply)
     /** Maps whole row to an option. Useful for outer joins. */
-    def ? = ((Rep.Some(gmsgid), gmsgsender, gmsgcontent)).shaped.<>({r=>import r._; _1.map(_=> GlobalmessagesRow.tupled((_1.get, _2, _3)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
+    def ? = ((Rep.Some(gmsgid), Rep.Some(gmsgsender), Rep.Some(gmsgcontent))).shaped.<>({r=>import r._; _1.map(_=> GlobalmessagesRow.tupled((_1.get, _2.get, _3.get)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
 
     /** Database column gmsgid SqlType(serial), AutoInc, PrimaryKey */
     val gmsgid: Rep[Int] = column[Int]("gmsgid", O.AutoInc, O.PrimaryKey)
-    /** Database column gmsgsender SqlType(varchar), Length(255,true), Default(None) */
-    val gmsgsender: Rep[Option[String]] = column[Option[String]]("gmsgsender", O.Length(255,varying=true), O.Default(None))
-    /** Database column gmsgcontent SqlType(text), Default(None) */
-    val gmsgcontent: Rep[Option[String]] = column[Option[String]]("gmsgcontent", O.Default(None))
+    /** Database column gmsgsender SqlType(varchar), Length(255,true) */
+    val gmsgsender: Rep[String] = column[String]("gmsgsender", O.Length(255,varying=true))
+    /** Database column gmsgcontent SqlType(text) */
+    val gmsgcontent: Rep[String] = column[String]("gmsgcontent")
 
-    /** Foreign key referencing Task8user (database name globalmessages_gmsgsender_fkey) */
-    lazy val task8userFk = foreignKey("globalmessages_gmsgsender_fkey", gmsgsender, Task8user)(r => Rep.Some(r.username), onUpdate=ForeignKeyAction.NoAction, onDelete=ForeignKeyAction.NoAction)
+    /** Foreign key referencing Task9user (database name globalmessages_gmsgsender_fkey) */
+    lazy val task9userFk = foreignKey("globalmessages_gmsgsender_fkey", gmsgsender, Task9user)(r => r.username, onUpdate=ForeignKeyAction.NoAction, onDelete=ForeignKeyAction.NoAction)
   }
   /** Collection-like TableQuery object for table Globalmessages */
   lazy val Globalmessages = new TableQuery(tag => new Globalmessages(tag))
@@ -78,53 +78,53 @@ trait Tables {
 
   /** Entity class storing rows of table Localmessages
    *  @param lmsgid Database column lmsgid SqlType(serial), AutoInc, PrimaryKey
-   *  @param lmsgsender Database column lmsgsender SqlType(varchar), Length(255,true), Default(None)
-   *  @param lmsgreceiver Database column lmsgreceiver SqlType(varchar), Length(255,true), Default(None)
-   *  @param lmsgcontent Database column lmsgcontent SqlType(text), Default(None) */
-  case class LocalmessagesRow(lmsgid: Int, lmsgsender: Option[String] = None, lmsgreceiver: Option[String] = None, lmsgcontent: Option[String] = None)
+   *  @param lmsgsender Database column lmsgsender SqlType(varchar), Length(255,true)
+   *  @param lmsgreceiver Database column lmsgreceiver SqlType(varchar), Length(255,true)
+   *  @param lmsgcontent Database column lmsgcontent SqlType(text) */
+  case class LocalmessagesRow(lmsgid: Int, lmsgsender: String, lmsgreceiver: String, lmsgcontent: String)
   /** GetResult implicit for fetching LocalmessagesRow objects using plain SQL queries */
-  implicit def GetResultLocalmessagesRow(implicit e0: GR[Int], e1: GR[Option[String]]): GR[LocalmessagesRow] = GR{
+  implicit def GetResultLocalmessagesRow(implicit e0: GR[Int], e1: GR[String]): GR[LocalmessagesRow] = GR{
     prs => import prs._
-    LocalmessagesRow.tupled((<<[Int], <<?[String], <<?[String], <<?[String]))
+    LocalmessagesRow.tupled((<<[Int], <<[String], <<[String], <<[String]))
   }
   /** Table description of table localmessages. Objects of this class serve as prototypes for rows in queries. */
   class Localmessages(_tableTag: Tag) extends profile.api.Table[LocalmessagesRow](_tableTag, "localmessages") {
     def * = (lmsgid, lmsgsender, lmsgreceiver, lmsgcontent).<>(LocalmessagesRow.tupled, LocalmessagesRow.unapply)
     /** Maps whole row to an option. Useful for outer joins. */
-    def ? = ((Rep.Some(lmsgid), lmsgsender, lmsgreceiver, lmsgcontent)).shaped.<>({r=>import r._; _1.map(_=> LocalmessagesRow.tupled((_1.get, _2, _3, _4)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
+    def ? = ((Rep.Some(lmsgid), Rep.Some(lmsgsender), Rep.Some(lmsgreceiver), Rep.Some(lmsgcontent))).shaped.<>({r=>import r._; _1.map(_=> LocalmessagesRow.tupled((_1.get, _2.get, _3.get, _4.get)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
 
     /** Database column lmsgid SqlType(serial), AutoInc, PrimaryKey */
     val lmsgid: Rep[Int] = column[Int]("lmsgid", O.AutoInc, O.PrimaryKey)
-    /** Database column lmsgsender SqlType(varchar), Length(255,true), Default(None) */
-    val lmsgsender: Rep[Option[String]] = column[Option[String]]("lmsgsender", O.Length(255,varying=true), O.Default(None))
-    /** Database column lmsgreceiver SqlType(varchar), Length(255,true), Default(None) */
-    val lmsgreceiver: Rep[Option[String]] = column[Option[String]]("lmsgreceiver", O.Length(255,varying=true), O.Default(None))
-    /** Database column lmsgcontent SqlType(text), Default(None) */
-    val lmsgcontent: Rep[Option[String]] = column[Option[String]]("lmsgcontent", O.Default(None))
+    /** Database column lmsgsender SqlType(varchar), Length(255,true) */
+    val lmsgsender: Rep[String] = column[String]("lmsgsender", O.Length(255,varying=true))
+    /** Database column lmsgreceiver SqlType(varchar), Length(255,true) */
+    val lmsgreceiver: Rep[String] = column[String]("lmsgreceiver", O.Length(255,varying=true))
+    /** Database column lmsgcontent SqlType(text) */
+    val lmsgcontent: Rep[String] = column[String]("lmsgcontent")
 
-    /** Foreign key referencing Task8user (database name localmessages_lmsgreceiver_fkey) */
-    lazy val task8userFk1 = foreignKey("localmessages_lmsgreceiver_fkey", lmsgreceiver, Task8user)(r => Rep.Some(r.username), onUpdate=ForeignKeyAction.NoAction, onDelete=ForeignKeyAction.NoAction)
-    /** Foreign key referencing Task8user (database name localmessages_lmsgsender_fkey) */
-    lazy val task8userFk2 = foreignKey("localmessages_lmsgsender_fkey", lmsgsender, Task8user)(r => Rep.Some(r.username), onUpdate=ForeignKeyAction.NoAction, onDelete=ForeignKeyAction.NoAction)
+    /** Foreign key referencing Task9user (database name localmessages_lmsgreceiver_fkey) */
+    lazy val task9userFk1 = foreignKey("localmessages_lmsgreceiver_fkey", lmsgreceiver, Task9user)(r => r.username, onUpdate=ForeignKeyAction.NoAction, onDelete=ForeignKeyAction.NoAction)
+    /** Foreign key referencing Task9user (database name localmessages_lmsgsender_fkey) */
+    lazy val task9userFk2 = foreignKey("localmessages_lmsgsender_fkey", lmsgsender, Task9user)(r => r.username, onUpdate=ForeignKeyAction.NoAction, onDelete=ForeignKeyAction.NoAction)
   }
   /** Collection-like TableQuery object for table Localmessages */
   lazy val Localmessages = new TableQuery(tag => new Localmessages(tag))
 
-  /** Entity class storing rows of table Task8user
+  /** Entity class storing rows of table Task9user
    *  @param userid Database column userid SqlType(serial), AutoInc, PrimaryKey
    *  @param username Database column username SqlType(varchar), Length(255,true)
    *  @param password Database column password SqlType(varchar), Length(255,true) */
-  case class Task8userRow(userid: Int, username: String, password: String)
-  /** GetResult implicit for fetching Task8userRow objects using plain SQL queries */
-  implicit def GetResultTask8userRow(implicit e0: GR[Int], e1: GR[String]): GR[Task8userRow] = GR{
+  case class Task9userRow(userid: Int, username: String, password: String)
+  /** GetResult implicit for fetching Task9userRow objects using plain SQL queries */
+  implicit def GetResultTask9userRow(implicit e0: GR[Int], e1: GR[String]): GR[Task9userRow] = GR{
     prs => import prs._
-    Task8userRow.tupled((<<[Int], <<[String], <<[String]))
+    Task9userRow.tupled((<<[Int], <<[String], <<[String]))
   }
-  /** Table description of table task8user. Objects of this class serve as prototypes for rows in queries. */
-  class Task8user(_tableTag: Tag) extends profile.api.Table[Task8userRow](_tableTag, "task8user") {
-    def * = (userid, username, password).<>(Task8userRow.tupled, Task8userRow.unapply)
+  /** Table description of table task9user. Objects of this class serve as prototypes for rows in queries. */
+  class Task9user(_tableTag: Tag) extends profile.api.Table[Task9userRow](_tableTag, "task9user") {
+    def * = (userid, username, password).<>(Task9userRow.tupled, Task9userRow.unapply)
     /** Maps whole row to an option. Useful for outer joins. */
-    def ? = ((Rep.Some(userid), Rep.Some(username), Rep.Some(password))).shaped.<>({r=>import r._; _1.map(_=> Task8userRow.tupled((_1.get, _2.get, _3.get)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
+    def ? = ((Rep.Some(userid), Rep.Some(username), Rep.Some(password))).shaped.<>({r=>import r._; _1.map(_=> Task9userRow.tupled((_1.get, _2.get, _3.get)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
 
     /** Database column userid SqlType(serial), AutoInc, PrimaryKey */
     val userid: Rep[Int] = column[Int]("userid", O.AutoInc, O.PrimaryKey)
@@ -136,8 +136,8 @@ trait Tables {
     /** Uniqueness Index over (username) (database name task8user_username_key) */
     val index1 = index("task8user_username_key", username, unique=true)
   }
-  /** Collection-like TableQuery object for table Task8user */
-  lazy val Task8user = new TableQuery(tag => new Task8user(tag))
+  /** Collection-like TableQuery object for table Task9user */
+  lazy val Task9user = new TableQuery(tag => new Task9user(tag))
 
   /** Entity class storing rows of table Users
    *  @param id Database column id SqlType(serial), AutoInc, PrimaryKey

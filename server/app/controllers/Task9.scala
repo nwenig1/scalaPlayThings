@@ -18,12 +18,16 @@ import slick.jdbc.PostgresProfile.api._
 
 
 @Singleton
-class Task9 @Inject() (protected val dbConfigProvider: DatabaseConfigProvider, cc:ControllerComponents)(implicit ec: ExecutionContext) extends AbstractController(cc) {
-def load= Action{ implicit request=>
+class Task9 @Inject() (protected val dbConfigProvider: DatabaseConfigProvider, cc:ControllerComponents)(implicit ec: ExecutionContext) 
+extends AbstractController(cc) with HasDatabaseConfigProvider[JdbcProfile] {
+
+  private val model = new Task9DatabaseModel(db)
+
+  def load= Action{ implicit request=>
         Ok(views.html.task9())
     }
     implicit val userDataReads = Json.reads[UserData]
-    implicit val localMessage = Json.reads[LocalMessage]
+    implicit val localMessageWrites = Json.writes[LocalMessage]
 
     def withJsonBody[A](f: A => Future[Result])(implicit request: Request[AnyContent], reads: Reads[A]): Future[Result] = {
         request.body.asJson.map { body =>
@@ -33,44 +37,46 @@ def load= Action{ implicit request=>
       }
     }.getOrElse(Future.successful(Redirect(routes.Task9.load)))
   }
-  def withSessionUsername(f: String => Result)(implicit request: Request[AnyContent]) = {
-    request.session.get("username").map(f).getOrElse(Ok(Json.toJson(Seq.empty[String])))
+  def withSessionUsername(f: String => Future[Result])(implicit request: Request[AnyContent]) : Future[Result] = {
+    request.session.get("username").map(f).getOrElse(Future.successful(Ok(Json.toJson(Seq.empty[String]))))
   }
 
-    def login = ???
-//        Action { implicit request =>
-//        withJsonBody[UserData] { ud =>
-//            if(Task5MemoryModel.validateInfo(ud.username, ud.password)){
-//                Ok(Json.toJson(true))
-//                .withSession("username" -> ud.username, "csrfToken" ->play.filters.csrf.CSRF.getToken.map(_.value).getOrElse(""))
-//            }else{
-//                Ok(Json.toJson(false))
-//            }
-//        }
-//    }
+    def login = Action.async { implicit request =>
+        withJsonBody[UserData] { ud =>
+          model.validateUser(ud.username, ud.password).map { userId =>
+            userId match{
+              case Some(userId) => Ok(Json.toJson(true)).withSession("username" -> ud.username, "userid" -> userId.toString, 
+              "csrfToken" -> play.filters.csrf.CSRF.getToken.map(_.value).getOrElse(""))
+              case None => Ok(Json.toJson(false))
+            } 
+          }  
+        }
+    }
 
-    def create = ???
-//        Action { implicit request =>
-//        withJsonBody[UserData] {ud =>
-//            if(Task5MemoryModel.createUser(ud.username, ud.password)){
-//                Ok(Json.toJson(true))
-//                .withSession("username" -> ud.username, "csrfToken" ->play.filters.csrf.CSRF.getToken.map(_.value).getOrElse(""))  
-//            }else{
-//                Ok(Json.toJson(false))
-//            }
-//        }
-//    }
-    def getGlobalMessages = ???
-//        Action { implicit request=>
-//        Ok(Json.toJson(Task5MemoryModel.getGlobalMessages()))   
-//        }
-//    def getLocalMessages = Action { implicit request =>
-//        withSessionUsername { username =>
-//            Ok(Json.toJson(Task5MemoryModel.getLocalMessages(username)))
-//        }
-//    }
-    def sendGlobalMessage = ???
-//        Action { implicit request =>
+    def create = Action.async { implicit request =>
+      withJsonBody[UserData] {ud =>
+            model.createUser(ud.username, ud.password).map { userId =>
+              userId match {
+              case Some(userId) => Ok(Json.toJson(true)).withSession("username" -> ud.username, "userId" -> userId.toString,
+              "csrfToken" -> play.filters.csrf.CSRF.getToken.map(_.value).getOrElse(""))
+              case None => Ok(Json.toJson(false))
+            }
+            }
+        }
+    }
+    def getGlobalMessages = Action { implicit request=>
+      ???
+  //    withSessionUsername { username =>
+  //      model.getGlobalMessages(username).map(globalmessages => Ok(Json.toJson(globalmessages)))
+  //    }  
+        }
+ //   def getLocalMessages = Action { implicit request =>
+ //       withSessionUsername { username =>
+ //           Ok(Json.toJson(Task5MemoryModel.getLocalMessages(username)))
+ //       }
+ //   }
+    def sendGlobalMessage = Action { implicit request =>
+      ???
 //        withSessionUsername { username=>
 //            withJsonBody[String] { message=>
 //            Task5MemoryModel.sendGlobalMessage(username, message); 
@@ -78,9 +84,15 @@ def load= Action{ implicit request=>
 //        }
 //    }
 //
-//    }
-    def sendLocalMessage = ???
-//    Action { implicit request =>
+   }
+   def getLocalMessages = Action.async { implicit request =>
+    withSessionUsername { username =>
+      model.getLocalMessages(username).map(localMessages => Ok(Json.toJson(localMessages)))
+    }
+  
+  }
+    def sendLocalMessage =Action { implicit request =>
+      ???
 //        withSessionUsername { username =>
 //            withJsonBody[LocalMessage] { lm=>
 //
@@ -91,7 +103,7 @@ def load= Action{ implicit request=>
 //                }
 //            }
 //        }
-//    }
+    }
 }
 
 
