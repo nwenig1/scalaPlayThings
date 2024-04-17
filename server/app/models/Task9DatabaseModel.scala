@@ -30,10 +30,22 @@ class Task9DatabaseModel(db: Database)(implicit ec: ExecutionContext) {
       } else Future.successful(None)
     }
   }
+  def sendGlobalMessage (sender: String, content: String) = {
+    db.run(Globalmessages += GlobalmessagesRow(-1, sender, content))
+  }
+  //might need to verify the reciever exists 
+  def sendLocalMessage(sender: String, reciever: String, content: String) = {
+    db.run(Localmessages += LocalmessagesRow(-1, sender, reciever, content))
+
+  }
   def getLocalMessages(username:String ) : Future[Seq[LocalMessage]] = {
    val messages = db.run(Localmessages.filter(lm => lm.lmsgreceiver === username).result)
         messages.map(localMessages => localMessages.map(localMessage => LocalMessage(localMessage.lmsgsender, localMessage.lmsgreceiver, localMessage.lmsgcontent)))
 
+}
+def getGlobalMessages() : Future[Seq[GlobalMessage]] = {
+  val messages = db.run(Globalmessages.filter(gm => gm.gmsgsender === gm.gmsgsender).result) //make this a map, not a filter?
+  messages.map(globalMessages => globalMessages.map(globalMessage =>GlobalMessage(globalMessage.gmsgsender, globalMessage.gmsgcontent)))
 }
     
            

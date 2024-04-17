@@ -26,8 +26,10 @@ extends AbstractController(cc) with HasDatabaseConfigProvider[JdbcProfile] {
   def load= Action{ implicit request=>
         Ok(views.html.task9())
     }
+    implicit val localMessageReads = Json.reads[LocalMessage]
     implicit val userDataReads = Json.reads[UserData]
     implicit val localMessageWrites = Json.writes[LocalMessage]
+    implicit val globalMessageWrites = Json.writes[GlobalMessage]
 
     def withJsonBody[A](f: A => Future[Result])(implicit request: Request[AnyContent], reads: Reads[A]): Future[Result] = {
         request.body.asJson.map { body =>
@@ -64,26 +66,20 @@ extends AbstractController(cc) with HasDatabaseConfigProvider[JdbcProfile] {
             }
         }
     }
-    def getGlobalMessages = Action { implicit request=>
-      ???
-  //    withSessionUsername { username =>
-  //      model.getGlobalMessages(username).map(globalmessages => Ok(Json.toJson(globalmessages)))
-  //    }  
+    def getGlobalMessages = Action.async { implicit request=>
+      withSessionUsername { username =>
+          model.getGlobalMessages().map(globalmessages => Ok(Json.toJson(globalmessages)))
+      }  
         }
- //   def getLocalMessages = Action { implicit request =>
- //       withSessionUsername { username =>
- //           Ok(Json.toJson(Task5MemoryModel.getLocalMessages(username)))
- //       }
- //   }
-    def sendGlobalMessage = Action { implicit request =>
-      ???
-//        withSessionUsername { username=>
-//            withJsonBody[String] { message=>
-//            Task5MemoryModel.sendGlobalMessage(username, message); 
-//            Ok(Json.toJson(true)); 
-//        }
-//    }
-//
+
+    def sendGlobalMessage = Action.async { implicit request =>
+    withSessionUsername { username=>
+            withJsonBody[String] { message =>
+            model.sendGlobalMessage(username, message); 
+            Future.successful(Ok(Json.toJson(true))); 
+        }
+    }
+
    }
    def getLocalMessages = Action.async { implicit request =>
     withSessionUsername { username =>
@@ -91,18 +87,15 @@ extends AbstractController(cc) with HasDatabaseConfigProvider[JdbcProfile] {
     }
   
   }
-    def sendLocalMessage =Action { implicit request =>
-      ???
-//        withSessionUsername { username =>
-//            withJsonBody[LocalMessage] { lm=>
-//
-//                    if(Task5MemoryModel.sendLocalMessageTask8(username, lm.reciever, lm.contents)){
-//                    Ok(Json.toJson(true))
-//                    } else{
-//                    Ok(Json.toJson(false))
-//                }
-//            }
-//        }
+    def sendLocalMessage =Action.async { implicit request =>
+      println("send local called ")
+        withSessionUsername { username =>
+            withJsonBody[LocalMessage] { lm=>
+              println("send local variables are " + username+ " " + lm.reciever + " " + lm.contents)
+              model.sendLocalMessage(username, lm.reciever, lm.contents)
+              Future.successful(Ok(Json.toJson(true)))
+            }
+        }
     }
 }
 

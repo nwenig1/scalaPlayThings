@@ -112,7 +112,7 @@ class MessagesComponent extends React.Component{
         return ce('div', null, 
         ce('div',  {id:"seeGlobal"}, 
             ce('h2', null, "Global Messages:"),
-            ce('ul', null, this.state.globalMessages.map((globalMessage) => ce('li', null, globalMessage[0] + " says " + globalMessage[1])))
+            ce('ul', null, this.state.globalMessages.map((globalMessage) => ce('li', null, globalMessage.sender + " says " + globalMessage.content)))
             ), //end see global div  
         ce('div', {id: "seeLocal"}, 
             ce('h2', null, "Local Messages:"),
