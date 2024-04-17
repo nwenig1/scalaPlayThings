@@ -142,7 +142,6 @@ class MessagesComponent extends React.Component{
     }
     getLocalMessages(){
         fetch(getLocalMessagesRoute).then(res=>res.json()).then(localMessages =>{
-            console.log(localMessages)
             this.setState({ localMessages })
         }); 
     }

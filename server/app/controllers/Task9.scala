@@ -33,7 +33,6 @@ extends AbstractController(cc) with HasDatabaseConfigProvider[JdbcProfile] {
 
     def withJsonBody[A](f: A => Future[Result])(implicit request: Request[AnyContent], reads: Reads[A]): Future[Result] = {
         request.body.asJson.map { body =>
-          println(body)
         Json.fromJson[A](body) match {
         case JsSuccess(a, path) => f(a)
         case e @ JsError(_) => Future.successful(Redirect(routes.Task9.load))
@@ -89,12 +88,15 @@ extends AbstractController(cc) with HasDatabaseConfigProvider[JdbcProfile] {
   
   }
     def sendLocalMessage =Action.async { implicit request =>
-      println("send local called ")
         withSessionUsername { username =>
             withJsonBody[dumbIdea] { lm=>
-              println("send local variables are " + username+ " " + lm.reciever + " " + lm.contents)
-              model.sendLocalMessage(username, lm.reciever, lm.contents)
-              Future.successful(Ok(Json.toJson(true)))
+              model.sendLocalMessage(username, lm.reciever, lm.contents).flatMap { result=>
+                if(result){
+                Future.successful(Ok(Json.toJson(true)))
+              } else {
+                Future.successful(Ok(Json.toJson(false)))
+              }
+              }
             }
         }
     }

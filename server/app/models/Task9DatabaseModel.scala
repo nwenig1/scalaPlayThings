@@ -34,10 +34,17 @@ class Task9DatabaseModel(db: Database)(implicit ec: ExecutionContext) {
     db.run(Globalmessages += GlobalmessagesRow(-1, sender, content))
   }
   //might need to verify the reciever exists 
-  def sendLocalMessage(sender: String, reciever: String, content: String) = {
-    db.run(Localmessages += LocalmessagesRow(-1, sender, reciever, content))
-
-  }
+  def sendLocalMessage(sender: String, reciever: String, content: String): Future[Boolean] = {
+    val userExists = db.run(Task9user.filter(userRow => userRow.username === reciever).result)
+    userExists.flatMap{ userRows =>
+      if(userRows.isEmpty){
+    Future.successful(false)
+      } else {
+         db.run(Localmessages += LocalmessagesRow(-1, sender, reciever, content))
+        Future.successful(true)
+          }
+      }
+    }
   def getLocalMessages(username:String ) : Future[Seq[LocalMessage]] = {
    val messages = db.run(Localmessages.filter(lm => lm.lmsgreceiver === username).result)
         messages.map(localMessages => localMessages.map(localMessage => LocalMessage(localMessage.lmsgsender, localMessage.lmsgreceiver, localMessage.lmsgcontent)))
