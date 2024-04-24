@@ -16,19 +16,14 @@ class Task9DatabaseModel(db: Database)(implicit ec: ExecutionContext) {
     })
   }
   def createUser(username: String, password: String) : Future[Option[Int]] = {
-    println("in model create user username is " + username + " and password is " + password)
     val matches = db.run(Task9user.filter(userRow => userRow.username === username).result)
     matches.flatMap{ userRows =>
       if(userRows.isEmpty){
         db.run(Task9user += Task9userRow(-1, username, BCrypt.hashpw(password, BCrypt.gensalt())))
         .flatMap { addCount =>
-          println("add count is: " + addCount)
           if(addCount > 0){
-            println("user added, add count bigger than 0")
-             db.run(Task9user.filter(userRow => userRow.username === username).result).map(_.headOption.map(_.id))
-          }
-      else {
-        println("in else, about to return none")
+             db.run(Task9user.filter(userRow => userRow.username === username).result).map(_.headOption.map(_.userid))
+          } else {
         Future.successful(None)
       }
     }
