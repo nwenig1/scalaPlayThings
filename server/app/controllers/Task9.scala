@@ -57,11 +57,19 @@ extends AbstractController(cc) with HasDatabaseConfigProvider[JdbcProfile] {
 
     def create = Action.async { implicit request =>
       withJsonBody[UserData] {ud =>
+        println("in controller username is " + ud.username + " and password is: " + ud.password)
             model.createUser(ud.username, ud.password).map { userId =>
               userId match {
-              case Some(userId) => Ok(Json.toJson(true)).withSession("username" -> ud.username, "userId" -> userId.toString,
+                
+              case Some(userId) => {
+                println("in match, userId is: " + userId)
+                Ok(Json.toJson(true)).withSession("username" -> ud.username, "userId" -> userId.toString,
               "csrfToken" -> play.filters.csrf.CSRF.getToken.map(_.value).getOrElse(""))
-              case None => Ok(Json.toJson(false))
+              }
+              case None => {
+                println(" in match, case none")
+                Ok(Json.toJson(false))
+              }
             }
             }
         }

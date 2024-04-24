@@ -10,9 +10,16 @@ import slinky.web.html._
 object ScalaJSExample {
 
   def main(args: Array[String]): Unit = {
-    // This line demonstrates using Scala.js to modify the DOM.
-    dom.document.getElementById("scalajsShoutOut").textContent = SharedMessages.itWorks
+    println("main running")
+    if(dom.document.getElementById("task10") != null){
 
+      println("task 10 found")
+     // Task10.runTask10()
+    }
+    // This line demonstrates using Scala.js to modify the DOM.
+    if(dom.document.getElementById("scalajsShoutOut") != null){
+    dom.document.getElementById("scalajsShoutOut").textContent = SharedMessages.itWorks
+    
     // What is below is using Scala.js with Slinky to use React.
     println("Call the react stuff.")
     ReactDOM.render(
@@ -23,4 +30,5 @@ object ScalaJSExample {
       dom.document.getElementById("root")
     )
   }
+}
 }

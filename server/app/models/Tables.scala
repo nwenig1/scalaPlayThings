@@ -20,7 +20,7 @@ trait Tables {
 
   /** Entity class storing rows of table Globalmessages
    *  @param gmsgid Database column gmsgid SqlType(serial), AutoInc, PrimaryKey
-   *  @param gmsgsender Database column gmsgsender SqlType(varchar), Length(255,true)
+   *  @param gmsgsender Database column gmsgsender SqlType(varchar), Length(20,true)
    *  @param gmsgcontent Database column gmsgcontent SqlType(text) */
   case class GlobalmessagesRow(gmsgid: Int, gmsgsender: String, gmsgcontent: String)
   /** GetResult implicit for fetching GlobalmessagesRow objects using plain SQL queries */
@@ -36,8 +36,8 @@ trait Tables {
 
     /** Database column gmsgid SqlType(serial), AutoInc, PrimaryKey */
     val gmsgid: Rep[Int] = column[Int]("gmsgid", O.AutoInc, O.PrimaryKey)
-    /** Database column gmsgsender SqlType(varchar), Length(255,true) */
-    val gmsgsender: Rep[String] = column[String]("gmsgsender", O.Length(255,varying=true))
+    /** Database column gmsgsender SqlType(varchar), Length(20,true) */
+    val gmsgsender: Rep[String] = column[String]("gmsgsender", O.Length(20,varying=true))
     /** Database column gmsgcontent SqlType(text) */
     val gmsgcontent: Rep[String] = column[String]("gmsgcontent")
 
@@ -78,8 +78,8 @@ trait Tables {
 
   /** Entity class storing rows of table Localmessages
    *  @param lmsgid Database column lmsgid SqlType(serial), AutoInc, PrimaryKey
-   *  @param lmsgsender Database column lmsgsender SqlType(varchar), Length(255,true)
-   *  @param lmsgreceiver Database column lmsgreceiver SqlType(varchar), Length(255,true)
+   *  @param lmsgsender Database column lmsgsender SqlType(varchar), Length(20,true)
+   *  @param lmsgreceiver Database column lmsgreceiver SqlType(varchar), Length(20,true)
    *  @param lmsgcontent Database column lmsgcontent SqlType(text) */
   case class LocalmessagesRow(lmsgid: Int, lmsgsender: String, lmsgreceiver: String, lmsgcontent: String)
   /** GetResult implicit for fetching LocalmessagesRow objects using plain SQL queries */
@@ -95,25 +95,23 @@ trait Tables {
 
     /** Database column lmsgid SqlType(serial), AutoInc, PrimaryKey */
     val lmsgid: Rep[Int] = column[Int]("lmsgid", O.AutoInc, O.PrimaryKey)
-    /** Database column lmsgsender SqlType(varchar), Length(255,true) */
-    val lmsgsender: Rep[String] = column[String]("lmsgsender", O.Length(255,varying=true))
-    /** Database column lmsgreceiver SqlType(varchar), Length(255,true) */
-    val lmsgreceiver: Rep[String] = column[String]("lmsgreceiver", O.Length(255,varying=true))
+    /** Database column lmsgsender SqlType(varchar), Length(20,true) */
+    val lmsgsender: Rep[String] = column[String]("lmsgsender", O.Length(20,varying=true))
+    /** Database column lmsgreceiver SqlType(varchar), Length(20,true) */
+    val lmsgreceiver: Rep[String] = column[String]("lmsgreceiver", O.Length(20,varying=true))
     /** Database column lmsgcontent SqlType(text) */
     val lmsgcontent: Rep[String] = column[String]("lmsgcontent")
 
     /** Foreign key referencing Task9user (database name localmessages_lmsgreceiver_fkey) */
-    lazy val task9userFk1 = foreignKey("localmessages_lmsgreceiver_fkey", lmsgreceiver, Task9user)(r => r.username, onUpdate=ForeignKeyAction.NoAction, onDelete=ForeignKeyAction.NoAction)
-    /** Foreign key referencing Task9user (database name localmessages_lmsgsender_fkey) */
-    lazy val task9userFk2 = foreignKey("localmessages_lmsgsender_fkey", lmsgsender, Task9user)(r => r.username, onUpdate=ForeignKeyAction.NoAction, onDelete=ForeignKeyAction.NoAction)
+    lazy val task9userFk = foreignKey("localmessages_lmsgreceiver_fkey", lmsgreceiver, Task9user)(r => r.username, onUpdate=ForeignKeyAction.NoAction, onDelete=ForeignKeyAction.NoAction)
   }
   /** Collection-like TableQuery object for table Localmessages */
   lazy val Localmessages = new TableQuery(tag => new Localmessages(tag))
 
   /** Entity class storing rows of table Task9user
    *  @param userid Database column userid SqlType(serial), AutoInc, PrimaryKey
-   *  @param username Database column username SqlType(varchar), Length(255,true)
-   *  @param password Database column password SqlType(varchar), Length(255,true) */
+   *  @param username Database column username SqlType(varchar), Length(20,true)
+   *  @param password Database column password SqlType(varchar), Length(200,true) */
   case class Task9userRow(userid: Int, username: String, password: String)
   /** GetResult implicit for fetching Task9userRow objects using plain SQL queries */
   implicit def GetResultTask9userRow(implicit e0: GR[Int], e1: GR[String]): GR[Task9userRow] = GR{
@@ -128,13 +126,13 @@ trait Tables {
 
     /** Database column userid SqlType(serial), AutoInc, PrimaryKey */
     val userid: Rep[Int] = column[Int]("userid", O.AutoInc, O.PrimaryKey)
-    /** Database column username SqlType(varchar), Length(255,true) */
-    val username: Rep[String] = column[String]("username", O.Length(255,varying=true))
-    /** Database column password SqlType(varchar), Length(255,true) */
-    val password: Rep[String] = column[String]("password", O.Length(255,varying=true))
+    /** Database column username SqlType(varchar), Length(20,true) */
+    val username: Rep[String] = column[String]("username", O.Length(20,varying=true))
+    /** Database column password SqlType(varchar), Length(200,true) */
+    val password: Rep[String] = column[String]("password", O.Length(200,varying=true))
 
-    /** Uniqueness Index over (username) (database name task8user_username_key) */
-    val index1 = index("task8user_username_key", username, unique=true)
+    /** Uniqueness Index over (username) (database name task9user_username_key) */
+    val index1 = index("task9user_username_key", username, unique=true)
   }
   /** Collection-like TableQuery object for table Task9user */
   lazy val Task9user = new TableQuery(tag => new Task9user(tag))
