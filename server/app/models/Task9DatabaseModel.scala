@@ -25,7 +25,7 @@ class Task9DatabaseModel(db: Database)(implicit ec: ExecutionContext) {
           println("add count is: " + addCount)
           if(addCount > 0){
             println("user added, add count bigger than 0")
-             db.run(Users.filter(userRow => userRow.username === username).result).map(_.headOption.map(_.id))
+             db.run(Task9user.filter(userRow => userRow.username === username).result).map(_.headOption.map(_.id))
           }
       else {
         println("in else, about to return none")
