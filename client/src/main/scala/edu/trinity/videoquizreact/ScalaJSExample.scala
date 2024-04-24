@@ -14,7 +14,7 @@ object ScalaJSExample {
     if(dom.document.getElementById("task10") != null){
 
       println("task 10 found")
-     // Task10.runTask10()
+     Task10.runTask10()
     }
     // This line demonstrates using Scala.js to modify the DOM.
     if(dom.document.getElementById("scalajsShoutOut") != null){
