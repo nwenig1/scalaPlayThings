@@ -1,0 +1,10 @@
+@*task7 Template File *@
+@()(implicit request : RequestHeader, flash:Flash )
+
+
+@main("task7"){
+<h2> This is task 7 </h2>
+
+<input type="hidden" id="ws-route" value="@routes.WebSocketChat.socket.absoluteURL()">
+<script src = "@routes.Assets.versioned("javascript/task7.js")"></script>
+}
