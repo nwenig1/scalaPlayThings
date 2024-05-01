@@ -18,7 +18,8 @@ class Task7 @Inject() (cc:ControllerComponents) extends AbstractController(cc) {
         Ok(views.html.task7())
     }
     def socket = WebSocket.accept[String, String] { request =>
-        println("getting socket")
+      ???
+       // println("getting socket")
       
         }
 }
