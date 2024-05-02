@@ -11,7 +11,7 @@ class SpriteActor(out: ActorRef, manager: ActorRef) extends Actor{
     import SpriteActor._
 
     def receive = {
-      ???
+      ??? 
     }
     out ! "Connected"
 }
@@ -19,5 +19,10 @@ class SpriteActor(out: ActorRef, manager: ActorRef) extends Actor{
 object SpriteActor{
     def props(out: ActorRef, manager: ActorRef) = Props(new SpriteActor(out, manager))
 
-    case class move(action: String)
+    case class move(sprite: ActorRef, action: String)
+    //should move have the actor ref being moved? 
+    //otherwise wouldnt be able to know which sprite to move
+    //msg in chat is only msg cuz u dont need to know who sent what 
+    //but this needs to know who moves
+    //so has the sprite being moved, then the direction being moved 
 }
