@@ -3,6 +3,7 @@ package actors
 import akka.actor.Actor
 import akka.actor.Props
 import akka.actor.ActorRef
+import play.api.libs.json.Json
 
 
 class SpriteActor(out: ActorRef, manager: ActorRef) extends Actor{
@@ -11,15 +12,25 @@ class SpriteActor(out: ActorRef, manager: ActorRef) extends Actor{
     import SpriteActor._
 
     def receive = {
-      ??? 
+      case coord: String => {
+        println(coord)
+        var coord2 = "["+coord+"]"
+        manager ! SpriteManager.Action(self, coord2)
+      }
+      case newCoord(locations) => {
+        val jsonLocations = Json.toJson(locations).toString()
+        out ! jsonLocations
+        
+          
+      }
+      case e => println("unhandled case in sprite actor receaDkfhW;EOIFLve")
     }
-    out ! "Connected"
+  
 }
 
 object SpriteActor{
     def props(out: ActorRef, manager: ActorRef) = Props(new SpriteActor(out, manager))
-
-    case class move(sprite: ActorRef, action: String)
+    case class newCoord(locations: List[String])
     //should move have the actor ref being moved? 
     //otherwise wouldnt be able to know which sprite to move
     //msg in chat is only msg cuz u dont need to know who sent what 
