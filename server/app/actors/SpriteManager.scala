@@ -21,9 +21,6 @@ class SpriteManager extends Actor{
             for(sprite <- sprites){
                allLocations ::=spritePos(sprite)
             }
-            println(sprites)
-            println(allLocations)
-
             for(sprite <- sprites){
                 sprite ! newCoord(allLocations)
             }

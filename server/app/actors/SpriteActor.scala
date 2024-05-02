@@ -13,7 +13,6 @@ class SpriteActor(out: ActorRef, manager: ActorRef) extends Actor{
 
     def receive = {
       case coord: String => {
-        println(coord)
         var coord2 = "["+coord+"]"
         manager ! SpriteManager.Action(self, coord2)
       }
