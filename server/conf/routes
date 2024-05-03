@@ -43,6 +43,9 @@ POST        /sendLocalMessage9       controllers.Task9.sendLocalMessage
 # Routes for Task 10
 GET         /task10             controllers.Task10.load
 
+# Route for Task 11
+GET         /task11             controllers.Task11.load
+
 # Prefix must match `play.assets.urlPrefix`
 GET        /assets/*file                 controllers.Assets.at(file)
 GET        /versionedAssets/*file        controllers.Assets.versioned(path="/public", file: Asset)

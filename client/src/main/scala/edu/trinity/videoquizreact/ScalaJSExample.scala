@@ -16,6 +16,9 @@ object ScalaJSExample {
       println("task 10 found")
      Task10.runTask10()
     }
+    if(dom.document.getElementById("task11") != null){
+      Task11.runTask11()
+    }
     // This line demonstrates using Scala.js to modify the DOM.
     if(dom.document.getElementById("scalajsShoutOut") != null){
     dom.document.getElementById("scalajsShoutOut").textContent = SharedMessages.itWorks
