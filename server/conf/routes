@@ -45,6 +45,7 @@ GET         /task10             controllers.Task10.load
 
 # Route for Task 11
 GET         /task11             controllers.Task11.load
+GET         /socket11         controllers.Task11.socket
 
 # Prefix must match `play.assets.urlPrefix`
 GET        /assets/*file                 controllers.Assets.at(file)
