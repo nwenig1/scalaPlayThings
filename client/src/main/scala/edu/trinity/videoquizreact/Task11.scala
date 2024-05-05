@@ -11,6 +11,8 @@ import shared.Circle
 import shared.Line
 import play.api.libs.json.Json
 import scala.collection.mutable
+
+
 object Task11 {
   var shape = "square" 
   var linePoint1 : Option[(Int, Int)] = None
@@ -23,6 +25,16 @@ object Task11 {
       implicit val rectangleWrites = Json.writes[Rectangle]
       implicit val lineWrites = Json.writes[Line]
       implicit val circleWrites = Json.writes[Circle]
+
+      implicit val rectanglereads = Json.reads[Rectangle]
+      implicit val linereads = Json.reads[Line]
+      implicit val circlereads = Json.reads[Circle]
+      implicit val drawableReads = Json.reads[Drawable]
+      
+      //below is what I'd like to do in an ideal world
+      //implicit val drawableReads = Json.reads[List[Drawable]]
+
+    
     def runTask11(): Unit = {
         println("scala js for task 11 running")
         println(socketRoute)
@@ -86,13 +98,16 @@ object Task11 {
            // ctx.stroke()
         }    
         })
-        //get sockets set up here 
-       
+        
     }   
     socket.onmessage = (event) => {
-    //val shapes = processShapes(event.data.toString())
-    val actualData = event.data.toString()
-    println("socket received: " + actualData)
+    println("rawData" + event.data)
+    val parsedData = Json.parse(event.data.toString())
+    println("parsedData: " + parsedData)
+    val fromJsonData = Json.fromJson[Drawable](parsedData)
+    println("fromJsonData: " + fromJsonData)
+
+    
 
     
   

@@ -4,6 +4,7 @@ import akka.actor.Actor
 import akka.actor.ActorRef
 import collection.mutable
 import shared.Drawable
+import actors.PaletteActor.SendDrawings
 
 class PaletteManager extends Actor {
     private var palettes = List.empty[ActorRef] //list of all ppl connected
@@ -27,5 +28,4 @@ class PaletteManager extends Actor {
 object PaletteManager{
     case class NewPalette(palette: ActorRef)
     case class NewDrawing(drawing: Drawable)
-    case class SendDrawings(drawings: List[Drawable])
 }

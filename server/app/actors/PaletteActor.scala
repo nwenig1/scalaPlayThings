@@ -14,6 +14,7 @@ import shared.Circle
 
 
 
+
 class PaletteActor(out: ActorRef, manager: ActorRef) extends Actor{
     manager ! PaletteManager.NewPalette(self)
     import PaletteActor._
@@ -78,6 +79,7 @@ class PaletteActor(out: ActorRef, manager: ActorRef) extends Actor{
 
 object PaletteActor{
     def props(out: ActorRef, manager: ActorRef) = Props(new PaletteActor(out, manager))
+    case class SendDrawings(drawings: List[Drawable])
    
 
 }
