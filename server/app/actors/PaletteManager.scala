@@ -12,17 +12,17 @@ class PaletteManager extends Actor {
     import actors.PaletteManager._
   
     def receive = {
-        case NewPalette(palette) => palettes ::= palette
+        case NewPalette(palette) => {
+            palettes ::= palette
+            palette ! SendDrawings(shapes)
+        }
         case NewDrawing(drawing) => {
-            println("Manager recieved " + drawing)
             shapes ::= drawing //adds shape to list of all drawings
-           //  println("all shapes" + shapes)
-            for(palette <- palettes){ //sends the drawings out to everyone 
+            //sends the drawings out to everyone 
+            for(palette <- palettes){ 
                 palette ! SendDrawings(shapes)
             }
-
         }
-
     }
 }
 object PaletteManager{

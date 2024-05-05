@@ -20,23 +20,20 @@ class PaletteActor(out: ActorRef, manager: ActorRef) extends Actor{
     import PaletteActor._
 
   
-    implicit val RectangleReads = Json.reads[Rectangle]
-    implicit val LineReads = Json.reads[Line]
-    implicit val CircleReads = Json.reads[Circle]
+    implicit val RectangleReads: play.api.libs.json.Reads[shared.Rectangle] = Json.reads[Rectangle]
+    implicit val LineReads: play.api.libs.json.Reads[shared.Line]= Json.reads[Line]
+    implicit val CircleReads: play.api.libs.json.Reads[shared.Circle]= Json.reads[Circle]
 
-    implicit val RectangleWrites = Json.writes[Rectangle]
-    implicit val LineWrites = Json.writes[Line]
-    implicit val CircleWrites = Json.writes[Circle]
-
-  
+    implicit val RectangleWrites: play.api.libs.json.OWrites[shared.Rectangle]= Json.writes[Rectangle]
+    implicit val LineWrites: play.api.libs.json.OWrites[shared.Line]= Json.writes[Line]
+    implicit val CircleWrites: play.api.libs.json.OWrites[shared.Circle] = Json.writes[Circle]
+    implicit val DrawableWrites: play.api.libs.json.OWrites[shared.Drawable] = Json.writes[Drawable]  
     def receive = {
        case s: String=> {
-        println("server received string: " + s)
+        //attempts to parse to each shape type. if one fails (is None), it attempts the next shape
         val optRect: Option[Rectangle] = Json.parse(s).asOpt[Rectangle]
             optRect match {
-              
                 case Some(rectangle) => {
-                    println(rectangle)
                     manager ! NewDrawing(rectangle)
                 }
                 case None => {
@@ -48,7 +45,7 @@ class PaletteActor(out: ActorRef, manager: ActorRef) extends Actor{
                             optCircle match{
                                 case Some(circle) => manager ! NewDrawing(circle)
                                 case None => {
-                                    println("socket connected or unknown thing received")
+                                    println("Unknown thing received")
                                 }
                             }
                         }
@@ -56,30 +53,11 @@ class PaletteActor(out: ActorRef, manager: ActorRef) extends Actor{
                 }
             }
         }
-       case SendDrawings(shapes) => {
-       // println("sending all shapes out: " + shapes)
-        var strShapes = List.empty[String]
-        //convert to seq strings, send that seq to client
-       shapes.map { shape =>
-           strShapes ::= shape.toString()
-           }
-       println("Shapes as strings : " + strShapes)
-        val readyToSendShapes = Json.toJson(strShapes).toString()
-        out ! readyToSendShapes
-       
-
-
-        
-        //out ! shapes
-       }
-
+       case SendDrawings(shapes) =>  out ! Json.toJson(shapes).toString()
     }
-
 }
 
 object PaletteActor{
     def props(out: ActorRef, manager: ActorRef) = Props(new PaletteActor(out, manager))
     case class SendDrawings(drawings: List[Drawable])
-   
-
 }
