@@ -47,6 +47,9 @@ GET         /task10             controllers.Task10.load
 GET         /task11             controllers.Task11.load
 GET         /socket11         controllers.Task11.socket
 
+# Routes for chess thingy 
+GET         /chess             controllers.ChessController.load
+
 # Prefix must match `play.assets.urlPrefix`
 GET        /assets/*file                 controllers.Assets.at(file)
 GET        /versionedAssets/*file        controllers.Assets.versioned(path="/public", file: Asset)
