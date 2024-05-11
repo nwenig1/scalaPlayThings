@@ -8,10 +8,12 @@ import shared.Piece
 import shared.Position
 import shared.Rook
 import shared.King
+import shared.Bishop
+import shared.Queen
 
 
 object Chess {
-  
+    var board = List.empty[Piece]
     def runChess() : Unit = {
         println("trying to run chess")
         val canvas = document.getElementById("chessCanvas").asInstanceOf[html.Canvas]
@@ -23,8 +25,11 @@ object Chess {
          val xy = getCursorPosition(canvas, e)
          val clickedSquare: Position =  new Position((findLetter(xy._1, canvas.width), findNum(xy._2, canvas.height)))
         println(clickedSquare)
+        val test = new Queen("white", new Position('B', 3))
+        println(test.validMoves)
         })
         //assumes canvas is a square (not square chessboard would be weird)
+        //draws squares for board 
         val w=canvas.width
         val h = canvas.height
         val rSize = h * 1/8
@@ -36,8 +41,35 @@ object Chess {
         for(evenRow <- evens){
             evens.map(num => ctx.fillRect(w*num/8, h*evenRow/8, rSize, rSize))
         }
+        drawPieces(canvas, List.empty[Piece]) //so compiles, REPLACE WITH INITIAL STATES OF PIECES 
+        val img = dom.document.createElement("img").asInstanceOf[dom.html.Image]
+        img.src = "assets/images/bRook.jpg" // Set the path to your image
+          img.onload = (_: dom.Event) => {
+      
+      ctx.drawImage(img, findCoords(new Position('C', 4), canvas.height)._1, findCoords(new Position('C', 4), canvas.height)._2, 45, 45)
     }
+ 
 
+    // Append the canvas to the DOM
+  //  dom.document.body.apendChild(canvas)
+  
+
+    }
+        
+
+
+    def drawPieces(canvas: html.Canvas, pieces: List[Piece]) = {
+        //ideally this can be used to remake the board every time a move is made
+        //can also be used for initial board state, and gets passed in all the pieces and their initial positions
+        pieces.map(piece => {
+            piece match{
+                case _: Rook => 
+                    //match others and draw needed image 
+            }
+        })
+
+
+    }
 
     def getCursorPosition(canvas : html.Canvas, event: dom.MouseEvent): (Int, Int) = {
         val rect = canvas.getBoundingClientRect()
@@ -68,5 +100,41 @@ object Chess {
         else if(y>height*7/8 && y<height) 8
         else 100 //just for error handling, should never get to this case realistically
         
+    }
+    //helper function to figure out what coordinates a square is. 
+    //does the oppisite of findNum/letter, goes the other way
+    //helpful for putting pieces in certain squares
+    def findCoords(pos: Position, height: Int): (Int, Int) = {
+        val xLetter = pos.square._1
+        val yNumber = pos.square._2
+        var xCoord = 999
+        var yCoord = 999
+        xLetter.toString.charAt(0) match{
+            case 'A' => xCoord = 7
+            case 'B' => xCoord = (height * 1/8) + 10
+            case 'C' => xCoord = (height *2/8) + 10
+            case 'D' => xCoord = (height * 3/8) + 10
+            case 'E' => xCoord = (height * 4/8) + 10
+            case 'F' => xCoord = (height * 5/8) + 10
+            case 'G' => xCoord = (height * 6/8) + 10
+            case 'H' => xCoord = (height * 7/8) + 10
+            case _  => println("invalid position in letter match ")
+            
+        }
+        yNumber match {
+        
+            case 1=> yCoord = 7
+            case 2 => yCoord = (height * 1/8) + 10
+            case 3 => yCoord = (height *2/8) + 10
+            case 4 => yCoord = (height * 3/8) + 10
+            case 5 => yCoord = (height * 4/8) + 10
+            case 6 => yCoord = (height * 5/8) + 10
+            case 7 => yCoord = (height * 6/8) + 10
+            case 8 => yCoord = (height * 7/8) + 10
+            case _  => println("invalid position in number match")
+        }
+        (xCoord, yCoord)
+
+
     }
 }

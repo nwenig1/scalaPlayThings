@@ -14,6 +14,11 @@ case class Position(square: (Character, Int))
       if(square.square._1< 'A' || square.square._1 > 'H' || square.square._2 < 1 || square.square._2 > 8) false
         else true 
     }
+     //returns char with an offset. Ex f('A', 1) gives 'B', f('c', -2) gives 'A'
+    //nice helper function if I want to figure out one character to the left/right, whatever 
+    def getAdjacentChar(char: Character, offset: Integer): Character ={
+          (char.charValue()+offset).toChar
+    }
   }
   class Rook(color: String, startingSquare: Position) extends Piece{  
     val side = color   
@@ -51,38 +56,87 @@ case class Position(square: (Character, Int))
       validMoves::= new Position(getAdjacentChar(pos._1, -1), pos._2-1) //left/down
       validMoves.filter(move => inBounds(move))
     }
+  }
 
     class Queen(color: String, startingSquare: Position) extends Piece {
       val side = color
       var curPosition: Position = startingSquare
       def validMoves: List[Position] = {
-        //once bishop is done, could just make a bishop and rook at the queen's position
-        //then queen's valid moves would be those lists combined
-        //queen is basically a hybrid rook bishop
-        ???
+        //queen's valid moves is just a combination of a bishop's and rooks valid moves
+        //makes dummy pieces at the queen's positions and gets valid moves from that 
+        new Bishop("not real", this.curPosition).validMoves ++ new Rook("not real", this.curPosition).validMoves
       }
+
+    }
       class Bishop(color: String, startingSquare: Position) extends Piece {
         val side = color
         var curPosition: Position = startingSquare
         def validMoves: List[Position] = {
-          ???
-        
-     
+          var validMoves = List.empty[Position]
 
+    // Generating diagonal moves to the top-right
+        var (x, y) = this.curPosition.square
+        while (x < 'H' && y < 8) {
+          x = getAdjacentChar(x, 1)
+          y = y+1 
+          validMoves ::= new Position(x, y)
+    }
+        var (x2, y2) = this.curPosition.square
+        while(x2 < 'H' && y2 > 1){
+          x2 = getAdjacentChar(x2, 1)
+          println("new x is " + x2)
+          y2 = y2-1
+         validMoves ::= new Position(x2, y2)
+      }
+        var (x3, y3) = this.curPosition.square
+        while(x3 > 'A' && y3 < 8){
+          x3 = getAdjacentChar(x3, -1)
+          y3 = y3+1
+          validMoves ::= new Position(x3, y3)
+        }
+        var (x4, y4) = this.curPosition.square
+        while(x4 > 'A' && y4 > 1){
+          x4 = getAdjacentChar(x4, -1)
+          y4 = y4 -1
+          validMoves ::= new Position(x4, y4)
+        }
+      validMoves
+        }
+      
+      }
+      class Pawn(color: String, startingSquare: Position) extends Piece{
+        val side = color
+        var curPosition: Position = startingSquare
+        var hasMoved = false //for first move (can either go one or 2 spots on first move)
+        //assumes pawn can capture a piece on move (easier to filter list on game side than grow it)
+        def validMoves: List[Position] = {
+          var validMoves = List.empty[Position]
+          this.color match {
+            case "white" => {
+              if(!hasMoved) validMoves ::= new Position(this.curPosition.square._1, this.curPosition.square._2 + 2)
+              validMoves ::= new Position(this.curPosition.square._1, this.curPosition.square._2 + 1)
+              validMoves ::= new Position(getAdjacentChar(this.curPosition.square._1, 1), this.curPosition.square._2 + 1)
+              validMoves ::= new Position(getAdjacentChar(this.curPosition.square._1, -1), this.curPosition.square._2 + 1)
+            }
+            case "black" => {
+               if(!hasMoved) validMoves ::= new Position(this.curPosition.square._1, this.curPosition.square._2 + -2)
+              validMoves ::= new Position(this.curPosition.square._1, this.curPosition.square._2 -1)
+              validMoves ::= new Position(getAdjacentChar(this.curPosition.square._1, 1), this.curPosition.square._2 -1)
+              validMoves ::= new Position(getAdjacentChar(this.curPosition.square._1, -1), this.curPosition.square._2 -1)
+            }
+            case _:String=> println("unrecognized color")
+          }
+          
+          validMoves.filter(position => inBounds(position))
         }
       }
 
+      
+    
 
-    }
+   
+  
 
-    //returns char with an offset. Ex f('A', 1) gives 'B', f('c', -2) gives 'A'
-    //nice helper function if I want to figure out one character to the left/right, whatever 
-    def getAdjacentChar(char: Character, offset: Integer): Character ={
-          println("get adjacent char with for index " + offset + " and char " + char)
-          (char.charValue()-offset).toChar
-        
-    }
-
-  }
+  
 
 
