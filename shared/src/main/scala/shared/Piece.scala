@@ -130,6 +130,15 @@ case class Position(square: (Character, Int))
           validMoves.filter(position => inBounds(position))
         }
       }
+      class Knight(color: String, startingSquare: Position) extends Piece {
+        val side = color
+        var curPosition: Position = startingSquare
+        def validMoves: List[Position] = {
+          ???
+          
+        }
+      }
+  
 
       
     
