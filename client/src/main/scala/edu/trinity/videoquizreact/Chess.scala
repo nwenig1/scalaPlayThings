@@ -32,7 +32,8 @@ object Chess {
        // println(clickedSquare)
         selectedPiece match{
             //if a piece is selected and square is clicked, try to move piece to that square 
-            case Some(piece) => { makeMove(clickedSquare, piece)
+            case Some(piece) => { 
+                //make move here 
                 }
             //if no piece is selected, find the piece on clicked square, and select it
             case None => board.map(piece => if(piece.curPosition.equals(clickedSquare))  selectedPiece = Some(piece))
@@ -51,52 +52,56 @@ object Chess {
         for(evenRow <- evens){
             evens.map(num => ctx.fillRect(w*num/8, h*evenRow/8, rSize, rSize))
         }
-      val startingBoard:List[Piece] = List(
-        new Rook("white", new Position('A', 1)),
-        new Knight("white", new Position('B', 1)),
-        new Bishop("white", new Position('C', 1)),
-        new Queen("white", new Position('D',1)),
-        new King("white", new Position('E', 1)),
-        new Bishop("white", new Position('F', 1)),
-        new Knight("white", new Position('G', 1)), 
-        new Rook("white", new Position('H', 1)),
-        new Pawn("white", new Position('A', 2)),
-        new Pawn("white", new Position('B', 2)),
-        new Pawn("white", new Position('C', 2)),
-        new Pawn("white", new Position('D', 2)),
-        new Pawn("white", new Position('E', 2)),
-        new Pawn("white", new Position('F', 2)),
-        new Pawn("white", new Position('G', 2)),
-        new Pawn("white", new Position('H', 2)),
-
-        new Rook("black", new Position('A', 8)),
-        new Knight("black", new Position('B', 8)),
-        new Bishop("black", new Position('C', 8)),
-        new Queen("black", new Position('D',8)),
-        new King("black", new Position('E', 8)),
-        new Bishop("black", new Position('F', 8)),
-        new Knight("black", new Position('G', 8)), 
-        new Rook("black", new Position('H', 8)),
-        new Pawn("black", new Position('A', 7)),
-        new Pawn("black", new Position('B', 7)),
-        new Pawn("black", new Position('C', 7)),
-        new Pawn("black", new Position('D', 7)),
-        new Pawn("black", new Position('E', 7)),
-        new Pawn("black", new Position('F', 7)),
-        new Pawn("black", new Position('G', 7)),
-        new Pawn("black", new Position('H', 7))
+      //val startingBoard:List[Piece] = List(
+        //new Rook("white", new Position('A', 1)),
+        //new Knight("white", new Position('B', 1)),
+        //new Bishop("white", new Position('C', 1)),
+        //new Queen("white", new Position('D',1)),
+        //new King("white", new Position('E', 1)),
+        //new Bishop("white", new Position('F', 1)),
+        //new Knight("white", new Position('G', 1)), 
+        //new Rook("white", new Position('H', 1)),
+        //new Pawn("white", new Position('A', 2)),
+        //new Pawn("white", new Position('B', 2)),
+        //new Pawn("white", new Position('C', 2)),
+        //new Pawn("white", new Position('D', 2)),
+        //new Pawn("white", new Position('E', 2)),
+        //new Pawn("white", new Position('F', 2)),
+        //new Pawn("white", new Position('G', 2)),
+        //new Pawn("white", new Position('H', 2)),
+        //
+        //new Rook("black", new Position('A', 8)),
+        //new Knight("black", new Position('B', 8)),
+        //new Bishop("black", new Position('C', 8)),
+        //new Queen("black", new Position('D',8)),
+        //new King("black", new Position('E', 8)),
+        //new Bishop("black", new Position('F', 8)),
+        //new Knight("black", new Position('G', 8)), 
+        //new Rook("black", new Position('H', 8)),
+        //new Pawn("black", new Position('A', 7)),
+        //new Pawn("black", new Position('B', 7)),
+        //new Pawn("black", new Position('C', 7)),
+        //new Pawn("black", new Position('D', 7)),
+        //new Pawn("black", new Position('E', 7)),
+        //new Pawn("black", new Position('F', 7)),
+        //new Pawn("black", new Position('G', 7)),
+        //new Pawn("black", new Position('H', 7))
         
-        )
-        drawPieces(canvas, startingBoard)
-        board = startingBoard //sets global board variable to starting board 
+      //  )
+      //  drawPieces(canvas, startingBoard)
+      //  board = startingBoard //sets global board variable to starting board 
+      val testRook = new Rook("white", new Position('D', 5))
+      val testBoard:List[Piece] = List(
+        testRook,
+        new Rook("black", new Position('C', 5)),
+        new Rook("black", new Position('G', 5)),
+        new Rook("black", new Position('D', 8)),
+        new Pawn("white", new Position('D', 3))
+      )
+      drawPieces(canvas, testBoard)
+        println(testRook.validMoves(testBoard))
     }
-    def makeMove(destination: Position, piece: Piece): Option[List[Piece]] = {
-        selectedPiece = None //resets selecged piece S
-        println(validMovesWithBlocks(piece))
-        if(!piece.validMoves.contains(destination)){
-            println("not in piece's valid moves")
-            None
-        } else println("was in valid moves")
+  
         /*do game logic to determine valid moves
         AM NOT ACCOUNTING FOR PIECES BLOCKING MOVES IN VALID MOVES    
         things to check for:
@@ -120,42 +125,12 @@ object Chess {
             ideally castle? this won't happen till later tho 
 
         */
-        return None
-    }
-    def validMovesWithBlocks(piece: Piece): List[Position] = {
-        val validMovesEmptyBoard:List[Position] = piece.validMoves
-        var validMovesWithBlocks = validMovesEmptyBoard
-        //will try and filter out moves as it goes 
-        val allOccupiedSquares = board.map(thing=>thing.curPosition)
-        validMovesEmptyBoard.map(candidateSquare =>{
-            if(allOccupiedSquares.contains(candidateSquare)){
-                
-                piece match {
-                    case _: Rook => {
-                        if(candidateSquare.square._1 > piece.curPosition.square._1){
-                            //piece is blocking to the right
-                            println("piece is blocking to the right")
-                            validMovesWithBlocks = validMovesEmptyBoard.filter(blockedSquare => blockedSquare.square._1 <= candidateSquare.square._1)
-                        } else if(candidateSquare.square._1 < piece.curPosition.square._1){
-                            validMovesWithBlocks = validMovesEmptyBoard.filter(blockedSquare => blockedSquare.square._1 > candidateSquare.square._1)
-                            
-                            println("piece is blocking to the left")
-                        } else if(candidateSquare.square._2 > piece.curPosition.square._2){
-                            println("piece is blocking above")
-                        } else if(candidateSquare.square._2 < piece.curPosition.square._2){
-                            println("piece is blocking below")
-                        } else println("blocked square is the square the piece is on")
-                    }
-                }
-            }
-        })
-      validMovesWithBlocks
-
-    }
+       
+    
+   
+    
  
         
-
-
     def drawPieces(canvas: html.Canvas, pieces: List[Piece]) = {
         val ctx = canvas.getContext("2d")
         //ideally this can be used to remake the board every time a move is made
