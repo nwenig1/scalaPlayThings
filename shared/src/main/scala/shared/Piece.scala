@@ -133,18 +133,27 @@ case class Position(square: (Character, Int))
       var hasMoved = false //for castling 
       var curPosition = startingSquare
       def validMoves(allPieces: List[Piece]): List[Position] = {
+      var candidateMoves = List.empty[Position]
       var validMoves = List.empty[Position]
       val pos = this.curPosition.square
       //idk how else to do this, there's gotta be a better way 
-      validMoves::= new Position(getAdjacentChar(pos._1, 1), pos._2) //directly right
-      validMoves::= new Position(getAdjacentChar(pos._1, -1), pos._2) //directly left
-      validMoves::= new Position(pos._1, pos._2+1) //directly up
-      validMoves::= new Position(getAdjacentChar(pos._1, 1), pos._2-1) //directly down
-      validMoves::= new Position(getAdjacentChar(pos._1, 1), pos._2+1) //right/up
-      validMoves::= new Position(getAdjacentChar(pos._1, 1), pos._2-1) //right/down
-      validMoves::= new Position(getAdjacentChar(pos._1, -1), pos._2+1) //left/up
-      validMoves::= new Position(getAdjacentChar(pos._1, -1), pos._2-1) //left/down
+      candidateMoves::= new Position(getAdjacentChar(pos._1, 1), pos._2) //directly right
+      candidateMoves::= new Position(getAdjacentChar(pos._1, -1), pos._2) //directly left
+      candidateMoves::= new Position(pos._1, pos._2+1) //directly up
+      candidateMoves::= new Position(pos._1, pos._2-1) //directly down
+      candidateMoves::= new Position(getAdjacentChar(pos._1, 1), pos._2+1) //right/up
+      candidateMoves::= new Position(getAdjacentChar(pos._1, 1), pos._2-1) //right/down
+      candidateMoves::= new Position(getAdjacentChar(pos._1, -1), pos._2+1) //left/up
+      candidateMoves::= new Position(getAdjacentChar(pos._1, -1), pos._2-1) //left/down
+      candidateMoves.map(candidateMove => {
+        val collisionOpt = allPieces.find(potentialCollision => {potentialCollision.curPosition.equals(candidateMove)})
+        collisionOpt match{
+          case Some(collision) => println("King had conflict on square" + collision.curPosition.square)
+          case None => validMoves ::= candidateMove
+        }
+      })
       validMoves.filter(move => inBounds(move))
+
     }
   }
 
