@@ -12,6 +12,7 @@ import shared.Bishop
 import shared.Queen
 import shared.Knight
 import shared.Pawn
+import slinky.web.html.blockquote
 
 
 object Chess {
@@ -91,6 +92,7 @@ object Chess {
     }
     def makeMove(destination: Position, piece: Piece): Option[List[Piece]] = {
         selectedPiece = None //resets selecged piece S
+        println(validMovesWithBlocks(piece))
         if(!piece.validMoves.contains(destination)){
             println("not in piece's valid moves")
             None
@@ -117,16 +119,38 @@ object Chess {
             kings, rooks, pawns hasMoved will be set to true 
             ideally castle? this won't happen till later tho 
 
-            
-
-
-            
-
-
-
-
         */
         return None
+    }
+    def validMovesWithBlocks(piece: Piece): List[Position] = {
+        val validMovesEmptyBoard:List[Position] = piece.validMoves
+        var validMovesWithBlocks = validMovesEmptyBoard
+        //will try and filter out moves as it goes 
+        val allOccupiedSquares = board.map(thing=>thing.curPosition)
+        validMovesEmptyBoard.map(candidateSquare =>{
+            if(allOccupiedSquares.contains(candidateSquare)){
+                
+                piece match {
+                    case _: Rook => {
+                        if(candidateSquare.square._1 > piece.curPosition.square._1){
+                            //piece is blocking to the right
+                            println("piece is blocking to the right")
+                            validMovesWithBlocks = validMovesEmptyBoard.filter(blockedSquare => blockedSquare.square._1 <= candidateSquare.square._1)
+                        } else if(candidateSquare.square._1 < piece.curPosition.square._1){
+                            validMovesWithBlocks = validMovesEmptyBoard.filter(blockedSquare => blockedSquare.square._1 > candidateSquare.square._1)
+                            
+                            println("piece is blocking to the left")
+                        } else if(candidateSquare.square._2 > piece.curPosition.square._2){
+                            println("piece is blocking above")
+                        } else if(candidateSquare.square._2 < piece.curPosition.square._2){
+                            println("piece is blocking below")
+                        } else println("blocked square is the square the piece is on")
+                    }
+                }
+            }
+        })
+      validMovesWithBlocks
+
     }
  
         
