@@ -148,7 +148,10 @@ case class Position(square: (Character, Int))
       candidateMoves.map(candidateMove => {
         val collisionOpt = allPieces.find(potentialCollision => {potentialCollision.curPosition.equals(candidateMove)})
         collisionOpt match{
-          case Some(collision) => println("King had conflict on square" + collision.curPosition.square)
+          case Some(collision) => {
+            if(!collision.side.equals(this.side)) validMoves::=candidateMove
+            else  println("King had conflict on square" + collision.curPosition.square)
+          }
           case None => validMoves ::= candidateMove
         }
       })
@@ -163,7 +166,7 @@ case class Position(square: (Character, Int))
       def validMoves(allPieces: List[Piece]): List[Position] = {
         //queen's valid moves is just a combination of a bishop's and rooks valid moves
         //makes dummy pieces at the queen's positions and gets valid moves from that 
-        new Bishop(this.side, this.curPosition).validMoves(allPieces) ++ new Rook("not real", this.curPosition).validMoves(allPieces)
+        new Bishop(this.side, this.curPosition).validMoves(allPieces) ++ new Rook(this.side, this.curPosition).validMoves(allPieces)
       }
 
     }
@@ -174,34 +177,70 @@ case class Position(square: (Character, Int))
           var validMoves = List.empty[Position]
 
     // Generating diagonal moves to the top-right
-        var (x, y) = this.curPosition.square
-        while (x < 'H' && y < 8) {
-          x = getAdjacentChar(x, 1)
-          y = y+1 
-          validMoves ::= new Position(x, y)
-    }
+          var (x, y) = this.curPosition.square
+          var notCollided = true 
+          while (x < 'H' && y < 8 && notCollided) {
+            x = getAdjacentChar(x, 1)
+            y = y+1 
+            val candidateMove = new Position(x, y)
+            val collisionOpt = allPieces.find(potentialCollision => {potentialCollision.curPosition.equals(candidateMove)})
+            collisionOpt match {
+              case Some(conflictingPiece) => {
+                notCollided = false 
+                if(!conflictingPiece.side.equals(this.side)) validMoves::= candidateMove
+            } 
+              case None => validMoves ::=candidateMove
+            }
+          }
+          notCollided = true //resets the collision for next path 
         var (x2, y2) = this.curPosition.square
-        while(x2 < 'H' && y2 > 1){
+        //gets moves to bottom-right 
+        while(x2 < 'H' && y2 > 1 && notCollided){
           x2 = getAdjacentChar(x2, 1)
-          println("new x is " + x2)
           y2 = y2-1
-         validMoves ::= new Position(x2, y2)
-      }
+          val candidateMove = new Position(x2, y2)
+          val collisionOpt = allPieces.find(potentialCollision => {potentialCollision.curPosition.equals(candidateMove)})
+           collisionOpt match {
+              case Some(conflictingPiece) => {
+                notCollided = false 
+                if(!conflictingPiece.side.equals(this.side)) validMoves::= candidateMove
+            } 
+              case None => validMoves ::=candidateMove
+            }
+          }
+        notCollided = true
         var (x3, y3) = this.curPosition.square
-        while(x3 > 'A' && y3 < 8){
+        while(x3 > 'A' && y3 < 8 && notCollided){
           x3 = getAdjacentChar(x3, -1)
           y3 = y3+1
-          validMoves ::= new Position(x3, y3)
+          val candidateMove = new Position(x3, y3)
+          val collisionOpt = allPieces.find(potentialCollision => {potentialCollision.curPosition.equals(candidateMove)})
+           collisionOpt match {
+              case Some(conflictingPiece) => {
+                notCollided = false 
+                if(!conflictingPiece.side.equals(this.side)) validMoves::= candidateMove
+            } 
+              case None => validMoves ::=candidateMove
+            }
         }
+        notCollided = true 
         var (x4, y4) = this.curPosition.square
-        while(x4 > 'A' && y4 > 1){
+        while(x4 > 'A' && y4 > 1 && notCollided){
           x4 = getAdjacentChar(x4, -1)
           y4 = y4 -1
-          validMoves ::= new Position(x4, y4)
+          val candidateMove = new Position(x4, y4)
+          val collisionOpt = allPieces.find(potentialCollision => {potentialCollision.curPosition.equals(candidateMove)})
+           collisionOpt match {
+              case Some(conflictingPiece) => {
+                notCollided = false 
+                if(!conflictingPiece.side.equals(this.side)) validMoves::= candidateMove
+            } 
+              case None => validMoves ::=candidateMove
+            }
         }
-      validMoves
-        }
-      
+     validMoves.filter(move=> inBounds(move))
+       }
+     
       }
       class Pawn(color: String, startingSquare: Position) extends Piece{
         val side = color
@@ -233,8 +272,19 @@ case class Position(square: (Character, Int))
         val side = color
         var curPosition: Position = startingSquare
         def validMoves(allPieces : List[Piece]): List[Position] = {
-          ???
-          
+          //first is horizontal direction, second is vertical 
+          var validMoves = List.empty[Position]
+          val moveVectors: Seq[(Int, Int)] = Seq(
+            (1, 2), (2, 1), (2, -1), (1, -2), (-1, -2), (-2, -1), (-2, 1),(-1, 2))
+          moveVectors.map(moveVector=>{
+            val candidatePosition = new Position(getAdjacentChar(this.curPosition.square._1, moveVector._1), this.curPosition.square._2 + moveVector._2)
+            val collisionOpt = allPieces.find(potentialCollision => {potentialCollision.curPosition.equals(candidatePosition)})
+            collisionOpt match {
+              case Some(collision) => if(!collision.side.equals(this.side)) validMoves ::= candidatePosition
+              case None => validMoves ::= candidatePosition
+            }
+          })
+          validMoves.filter(square => inBounds(square))
         }
       }
   
