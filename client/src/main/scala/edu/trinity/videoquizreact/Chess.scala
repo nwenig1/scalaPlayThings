@@ -90,16 +90,16 @@ object Chess {
       //  )
       //  drawPieces(canvas, startingBoard)
       //  board = startingBoard //sets global board variable to starting board 
-      val testKnight = new King("white", new Position('D', 5))
+      val testPiece = new Pawn("black", new Position('D', 7))
       val testBoard:List[Piece] = List(
-        testKnight,
-         new Rook("white", new Position('C', 7)),
-        new Rook("black", new Position('F', 6)),
+        testPiece,
+         new Rook("white", new Position('D', 5)),
+        new Rook("black", new Position('E', 6)),
        // new Rook("white", new Position('E', 6)),
-        new Pawn("black", new Position('E', 4))
+        //new Pawn("black", new Position('E', 4))
       )
       drawPieces(canvas, testBoard)
-        println(testKnight.validMoves(testBoard))
+        println(testPiece.validMoves(testBoard))
     }
   
         /*do game logic to determine valid moves

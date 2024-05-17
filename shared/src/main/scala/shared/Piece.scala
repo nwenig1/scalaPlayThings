@@ -236,21 +236,45 @@ case class Position(square: (Character, Int))
         //assumes pawn can capture a piece on move (easier to filter list on game side than grow it)
         def validMoves(allPieces: List[Piece]): List[Position] = {
           var validMoves = List.empty[Position]
-          this.color match {
+        //declaring so can be talked about outside of side match 
+          var moveVectors:Seq[(Int, Int)] = Seq.empty[(Int, Int)]
+          this.side match {
             case "white" => {
-              if(!hasMoved) validMoves ::= new Position(this.curPosition.square._1, this.curPosition.square._2 + 2)
-              validMoves ::= new Position(this.curPosition.square._1, this.curPosition.square._2 + 1)
-              validMoves ::= new Position(getAdjacentChar(this.curPosition.square._1, 1), this.curPosition.square._2 + 1)
-              validMoves ::= new Position(getAdjacentChar(this.curPosition.square._1, -1), this.curPosition.square._2 + 1)
+              if(!this.hasMoved) moveVectors =  Seq((0, 1), (1, 1), (-1, 1), (0, 2))
+              else moveVectors =  Seq((0, 1), (1, 1), (-1, 1))
             }
             case "black" => {
-               if(!hasMoved) validMoves ::= new Position(this.curPosition.square._1, this.curPosition.square._2 + -2)
-              validMoves ::= new Position(this.curPosition.square._1, this.curPosition.square._2 -1)
-              validMoves ::= new Position(getAdjacentChar(this.curPosition.square._1, 1), this.curPosition.square._2 -1)
-              validMoves ::= new Position(getAdjacentChar(this.curPosition.square._1, -1), this.curPosition.square._2 -1)
+              if(!this.hasMoved) moveVectors = Seq((0, -1), (1, -1), (-1, -1), (0, -2))
+              else moveVectors = Seq((0, -1), (1, -1), (-1, -1))
+               
             }
             case _:String=> println("unrecognized color")
           }
+          moveVectors.map(moveVector => {
+            val candidateMove: Position = new Position(getAdjacentChar(this.curPosition.square._1, moveVector._1), (this.curPosition.square._2 + moveVector._2))
+            
+            val collisionOpt = allPieces.find(potentialCollision => {potentialCollision.curPosition.equals(candidateMove)})
+            collisionOpt match {
+              case Some(collision) => {
+                //if trying to move sideways onto opposing piece  
+                if(moveVector._1 != 0 && (!collision.side.equals(this.side))) {
+                  //can move if taking opposing piece
+                  validMoves::= candidateMove
+                }
+              }
+              case None => {
+                //if no collision, only add it if no sideways movement 
+                //CAN JUMP PIECES ON DOUBLE MOVE RIGHT NOW 
+                if(moveVector.equals(0, 1) || moveVector.equals(0, -1)) validMoves ::= candidateMove
+                //if trying to move 2 spots, makes sure it can move one spot
+                //works bc the 2spot move will always happen after the (0, 1) move has been checked for cuz of seq order
+                if(moveVector._2 != 1 && (validMoves.contains((0, 1))|| validMoves.contains(0, -1))) validMoves::= candidateMove
+
+              }
+            }
+          })
+
+          
           
           validMoves.filter(position => inBounds(position))
         }
