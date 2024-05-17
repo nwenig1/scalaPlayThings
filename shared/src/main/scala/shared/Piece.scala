@@ -133,30 +133,17 @@ case class Position(square: (Character, Int))
       var hasMoved = false //for castling 
       var curPosition = startingSquare
       def validMoves(allPieces: List[Piece]): List[Position] = {
-      var candidateMoves = List.empty[Position]
-      var validMoves = List.empty[Position]
-      val pos = this.curPosition.square
-      //idk how else to do this, there's gotta be a better way 
-      candidateMoves::= new Position(getAdjacentChar(pos._1, 1), pos._2) //directly right
-      candidateMoves::= new Position(getAdjacentChar(pos._1, -1), pos._2) //directly left
-      candidateMoves::= new Position(pos._1, pos._2+1) //directly up
-      candidateMoves::= new Position(pos._1, pos._2-1) //directly down
-      candidateMoves::= new Position(getAdjacentChar(pos._1, 1), pos._2+1) //right/up
-      candidateMoves::= new Position(getAdjacentChar(pos._1, 1), pos._2-1) //right/down
-      candidateMoves::= new Position(getAdjacentChar(pos._1, -1), pos._2+1) //left/up
-      candidateMoves::= new Position(getAdjacentChar(pos._1, -1), pos._2-1) //left/down
-      candidateMoves.map(candidateMove => {
+        var validMoves = List.empty[Position]
+      val moveVetors:Seq[(Int, Int)] = Seq((0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1), (-1, 0), (-1, 1))
+      moveVetors.map(moveVector =>{
+        val candidateMove = new Position(getAdjacentChar(this.curPosition.square._1, moveVector._1), this.curPosition.square._2 + moveVector._2)
         val collisionOpt = allPieces.find(potentialCollision => {potentialCollision.curPosition.equals(candidateMove)})
-        collisionOpt match{
-          case Some(collision) => {
-            if(!collision.side.equals(this.side)) validMoves::=candidateMove
-            else  println("King had conflict on square" + collision.curPosition.square)
-          }
+        collisionOpt match {
+          case Some(collision) => if(!collision.side.equals(this.side)) validMoves ::= candidateMove
           case None => validMoves ::= candidateMove
         }
       })
       validMoves.filter(move => inBounds(move))
-
     }
   }
 
