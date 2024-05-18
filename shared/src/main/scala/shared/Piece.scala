@@ -1,17 +1,8 @@
 package shared
 
-import play.api.libs.json.Reads
-import play.api.libs.functional.syntax._
-import play.api.libs.json.JsPath
-import play.api.libs.json.Writes
-import play.api.libs.json.Json
-import play.api.libs.json.JsString
-import play.api.libs.json.JsSuccess
-import play.api.libs.json.JsError
-
 
 case class Position(square: (Char, Int))
-case class RookData(color: String, rX: String, rY: String)
+
 
 
   sealed trait Piece {

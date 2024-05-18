@@ -15,28 +15,71 @@ import shared.Pawn
 import slinky.web.html.blockquote
 import play.api.libs.json.Json
 import shared.RookData
+import shared.KnightData
+import shared.KingData
+import shared.QueenData
+import shared.PawnData
+import play.api.libs.json.OWrites
+import shared.BishopData
+import shared.GameState
+import shared.PieceData
+import play.api.libs.json.JsSuccess
+import play.api.libs.json.JsError
 
 
 object Chess {
-implicit val RookDataWrites = Json.writes[RookData]
+implicit val RookDataWrites: play.api.libs.json.OWrites[shared.RookData] = Json.writes[RookData]
+implicit val RookDataReads: play.api.libs.json.Reads[shared.RookData] =Json.reads[RookData]
+implicit val KnightDataWrites: play.api.libs.json.OWrites[shared.KnightData] = Json.writes[KnightData]
+implicit val KnightDataReads: play.api.libs.json.Reads[shared.KnightData]= Json.reads[KnightData]
+implicit val BishopDataWrites: play.api.libs.json.OWrites[shared.BishopData] = Json.writes[BishopData]
+implicit val BishopDataReads: play.api.libs.json.Reads[shared.BishopData]= Json.reads[BishopData]
+implicit val KingDataWrites: play.api.libs.json.OWrites[shared.KingData]= Json.writes[KingData]
+implicit val KingDataReads: play.api.libs.json.Reads[shared.KingData]= Json.reads[KingData]
+implicit val QueenDataWrites: OWrites[QueenData]= Json.writes[QueenData]
+implicit val QueenDataReads: play.api.libs.json.Reads[shared.QueenData] = Json.reads[QueenData]
+implicit val PawnDataWrites: play.api.libs.json.OWrites[shared.PawnData]= Json.writes[PawnData]
+implicit val PawnDataWReads: play.api.libs.json.Reads[shared.PawnData]= Json.reads[PawnData]
+
+implicit val PieceDataReads: play.api.libs.json.Reads[shared.PieceData] = Json.reads[PieceData]
+implicit val PieceDataWrites: play.api.libs.json.OWrites[shared.PieceData]= Json.writes[PieceData]
+
+implicit val GameStateWrites: play.api.libs.json.OWrites[shared.GameState]= Json.writes[GameState]
+implicit val GameStateReads: play.api.libs.json.Reads[shared.GameState]= Json.reads[GameState]
+
+
     var board = List.empty[Piece]
+
     var selectedPiece: Option[Piece] = None
     var turn = "white"
     def runChess() : Unit = {
         println("trying to run chess")
         val socketRoute = document.getElementById("ws-route").asInstanceOf[html.Input].value
         var socket = new dom.WebSocket(socketRoute.replace("http", "ws"))
-        socket.onopen = (event) => {
-            val testRook = new Rook("white", new Position('D', 3))
-            val testRookData = new RookData(testRook.side, testRook.curPosition.square._1.toString(), testRook.curPosition.square._2.toString())
-            socket.send(Json.toJson(testRookData).toString())
-            println("tried to send rook data")
-        }
+        socket.onopen = (event) => socket.send(Json.toJson("New user connected").toString())
+      
+  
+    
+        
         document.getElementById("currentTurn").asInstanceOf[html.Span].innerHTML = turn
         val canvas = document.getElementById("chessCanvas").asInstanceOf[html.Canvas]
         val ctx = canvas.getContext("2d")
         canvas.style.border = "1px solid black"
-        //initialize pieces here once I have types and stuff 
+ 
+           socket.onmessage = (event) => {
+    Json.fromJson[GameState](Json.parse(event.data.toString())) match {
+        case JsSuccess(gameState, _) => {
+            turn = gameState.currentTurn
+            board = dataToPiece(gameState.allPieceData)
+            ctx.clearRect(0, 0, canvas.width, canvas.height)
+            drawPieces(canvas, board)
+            document.getElementById("currentTurn").asInstanceOf[html.Span].innerHTML = turn
+        }
+        case JsError(error) => println("Issue w/ game state parse on client side ")
+    }
+}
+
+
         canvas.addEventListener("mousedown", { (e0: dom.Event) =>
          val e = e0.asInstanceOf[dom.MouseEvent] 
          val xy = getCursorPosition(canvas, e)
@@ -52,14 +95,18 @@ implicit val RookDataWrites = Json.writes[RookData]
                 
                 newBoard match {
                     case Some(newBoard) => {
-                    ctx.clearRect(0, 0, canvas.width, canvas.height)
-                    board = newBoard
-                    drawPieces(canvas, board)
+                   // ctx.clearRect(0, 0, canvas.width, canvas.height)
+                   // board = newBoard
+                   // drawPieces(canvas, board)
                     switchTurns()
-                    document.getElementById("currentTurn").asInstanceOf[html.Span].innerHTML = turn
                     if(isCheckmated(board, turn)){
                         document.getElementById("currentTurn").asInstanceOf[html.Span].innerHTML = "Game over!!"
                         println("checkmated!! game is over")
+                    }else {
+                        //send game data
+                        val allPieceData = getAllPieceData()
+                        val currentGameState = new GameState(turn, allPieceData)
+                        socket.send(Json.toJson(currentGameState).toString())   
                     }
                     }
                     case None => println("got none back")
@@ -313,5 +360,35 @@ implicit val RookDataWrites = Json.writes[RookData]
         } else turn = "white"
         println("turn is " + turn)
     }
-    
+    def getAllPieceData(): List[PieceData] = {
+        var ret = List.empty[PieceData]
+        board.map(piece => {
+            piece match {
+            case rook:Rook => ret::= new RookData(rook.side, rook.curPosition.square._1.toString, rook.curPosition.square._2.toString)
+            case knight: Knight => ret::= new KnightData(knight.side, knight.curPosition.square._1.toString, knight.curPosition.square._2.toString)
+            case bishop:Bishop => ret ::= new BishopData(bishop.side, bishop.curPosition.square._1.toString, bishop.curPosition.square._2.toString)
+            case king:King => ret::= new KingData(king.side, king.curPosition.square._1.toString, king.curPosition.square._2.toString)
+            case queen:Queen => ret::= new QueenData(queen.side, queen.curPosition.square._1.toString, queen.curPosition.square._2.toString)
+            case pawn: Pawn=> ret::= new PawnData(pawn.side, pawn.curPosition.square._1.toString, pawn.curPosition.square._2.toString)
+            case _ => println("unkown type in getAllPieceData")
+
+                }
+            })
+        ret
+    }
+    def dataToPiece(allPieceData: List[PieceData]): List[Piece] = {
+        var ret = List.empty[Piece]
+        allPieceData.map(pieceData => {
+            pieceData match {
+            case rook: RookData => ret::= new Rook(rook.color, new Position(rook.rX.charAt(0), rook.rY.toInt))
+            case knight: KnightData => ret::= new Knight(knight.color, new Position(knight.kX.charAt(0), knight.kY.toInt))
+            case bishop:BishopData => ret::= new Bishop(bishop.color, new Position(bishop.bX.charAt(0), bishop.bY.toInt))
+            case king:KingData => ret::= new King(king.color, new Position(king.kX.charAt(0), king.kY.toInt))
+            case queen:QueenData => ret ::= new Queen(queen.color, new Position(queen.qX.charAt(0), queen.qY.toInt))
+            case pawn: PawnData => ret::= new Pawn(pawn.color, new Position(pawn.pX.charAt(0), pawn.pY.toInt))
+            case _ => println("unknown piece data found in dataToPiece")
+            }
+        })
+        ret 
+    }
 }
