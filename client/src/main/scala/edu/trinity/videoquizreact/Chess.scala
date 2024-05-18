@@ -22,6 +22,9 @@ object Chess {
     var turn = "white"
     def runChess() : Unit = {
         println("trying to run chess")
+        val socketRoute = document.getElementById("ws-route").asInstanceOf[html.Input].value
+        var socket = new dom.WebSocket(socketRoute.replace("http", "ws"))
+        
         document.getElementById("currentTurn").asInstanceOf[html.Span].innerHTML = turn
         val canvas = document.getElementById("chessCanvas").asInstanceOf[html.Canvas]
         val ctx = canvas.getContext("2d")
@@ -47,10 +50,10 @@ object Chess {
                     drawPieces(canvas, board)
                     switchTurns()
                     document.getElementById("currentTurn").asInstanceOf[html.Span].innerHTML = turn
-                   // if(isCheckmated(board, turn)){
-                   //     document.getElementById("currentTurn").asInstanceOf[html.Span].innerHTML = "Game over!!"
-                   //     println("checkmated!! game is over")
-                   // }
+                    if(isCheckmated(board, turn)){
+                        document.getElementById("currentTurn").asInstanceOf[html.Span].innerHTML = "Game over!!"
+                        println("checkmated!! game is over")
+                    }
                     }
                     case None => println("got none back")
                 }

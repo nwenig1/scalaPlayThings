@@ -27,7 +27,7 @@ object Task11 {
     var color= "black"
     var linePoint1 : Option[(Int, Int)] = None
     var socketRoute = document.getElementById("ws-route").asInstanceOf[html.Input].value
-    var socket = new dom.WebSocket(socketRoute.replace("http", "ws"));
+    var socket = new dom.WebSocket(socketRoute.replace("http", "ws"))
     socket.onopen = (event) => socket.send(Json.toJson("New user connected").toString())
     socket.onmessage = (event) => {
     Json.fromJson[List[Drawable]](Json.parse(event.data.toString())) match {

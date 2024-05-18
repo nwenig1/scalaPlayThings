@@ -4,7 +4,7 @@ package shared
 case class Position(square: (Character, Int))
 
   sealed trait Piece {
-
+    
     var curPosition: Position
     val side: String
     //validMoves only finds valid, in bounds moves. Does not take game conditions into account

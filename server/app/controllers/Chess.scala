@@ -19,9 +19,12 @@ import akka.actor.Props
 
 
 @Singleton
-class ChessController @Inject() (cc:ControllerComponents)(implicit system: ActorSystem, mat: Materializer) extends AbstractController(cc) {
+class Chess @Inject() (cc:ControllerComponents)(implicit system: ActorSystem, mat: Materializer) extends AbstractController(cc) {
     def load() = Action{ implicit request =>
         Ok(views.html.chess())
+    }
+    def socket() = Action { implicit request =>
+        ???
     }
 
 }
