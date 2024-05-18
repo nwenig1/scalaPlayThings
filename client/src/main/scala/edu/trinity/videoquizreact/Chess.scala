@@ -4,165 +4,90 @@ import org.scalajs.dom.html
 import org.scalajs.dom.document
 import scala.scalajs.js.annotation.JSExportTopLevel
 import slinky.web.html.canvas
-import shared.Piece
-import shared.Position
-import shared.Rook
-import shared.King
-import shared.Bishop
-import shared.Queen
-import shared.Knight
-import shared.Pawn
-import slinky.web.html.blockquote
+import shared._
 import play.api.libs.json.Json
-import shared.RookData
-import shared.KnightData
-import shared.KingData
-import shared.QueenData
-import shared.PawnData
 import play.api.libs.json.OWrites
-import shared.BishopData
-import shared.GameState
-import shared.PieceData
 import play.api.libs.json.JsSuccess
 import play.api.libs.json.JsError
 
 
 object Chess {
-implicit val RookDataWrites: play.api.libs.json.OWrites[shared.RookData] = Json.writes[RookData]
-implicit val RookDataReads: play.api.libs.json.Reads[shared.RookData] =Json.reads[RookData]
-implicit val KnightDataWrites: play.api.libs.json.OWrites[shared.KnightData] = Json.writes[KnightData]
-implicit val KnightDataReads: play.api.libs.json.Reads[shared.KnightData]= Json.reads[KnightData]
-implicit val BishopDataWrites: play.api.libs.json.OWrites[shared.BishopData] = Json.writes[BishopData]
-implicit val BishopDataReads: play.api.libs.json.Reads[shared.BishopData]= Json.reads[BishopData]
-implicit val KingDataWrites: play.api.libs.json.OWrites[shared.KingData]= Json.writes[KingData]
-implicit val KingDataReads: play.api.libs.json.Reads[shared.KingData]= Json.reads[KingData]
-implicit val QueenDataWrites: OWrites[QueenData]= Json.writes[QueenData]
-implicit val QueenDataReads: play.api.libs.json.Reads[shared.QueenData] = Json.reads[QueenData]
-implicit val PawnDataWrites: play.api.libs.json.OWrites[shared.PawnData]= Json.writes[PawnData]
-implicit val PawnDataWReads: play.api.libs.json.Reads[shared.PawnData]= Json.reads[PawnData]
-
-implicit val PieceDataReads: play.api.libs.json.Reads[shared.PieceData] = Json.reads[PieceData]
-implicit val PieceDataWrites: play.api.libs.json.OWrites[shared.PieceData]= Json.writes[PieceData]
-
-implicit val GameStateWrites: play.api.libs.json.OWrites[shared.GameState]= Json.writes[GameState]
-implicit val GameStateReads: play.api.libs.json.Reads[shared.GameState]= Json.reads[GameState]
+    implicit val RookDataWrites: play.api.libs.json.OWrites[shared.RookData] = Json.writes[RookData]
+    implicit val RookDataReads: play.api.libs.json.Reads[shared.RookData] =Json.reads[RookData]
+    implicit val KnightDataWrites: play.api.libs.json.OWrites[shared.KnightData] = Json.writes[KnightData]
+    implicit val KnightDataReads: play.api.libs.json.Reads[shared.KnightData]= Json.reads[KnightData]
+    implicit val BishopDataWrites: play.api.libs.json.OWrites[shared.BishopData] = Json.writes[BishopData]
+    implicit val BishopDataReads: play.api.libs.json.Reads[shared.BishopData]= Json.reads[BishopData]
+    implicit val KingDataWrites: play.api.libs.json.OWrites[shared.KingData]= Json.writes[KingData]
+    implicit val KingDataReads: play.api.libs.json.Reads[shared.KingData]= Json.reads[KingData]
+    implicit val QueenDataWrites: OWrites[QueenData]= Json.writes[QueenData]
+    implicit val QueenDataReads: play.api.libs.json.Reads[shared.QueenData] = Json.reads[QueenData]
+    implicit val PawnDataWrites: play.api.libs.json.OWrites[shared.PawnData]= Json.writes[PawnData]
+    implicit val PawnDataWReads: play.api.libs.json.Reads[shared.PawnData]= Json.reads[PawnData]
+    implicit val PieceDataReads: play.api.libs.json.Reads[shared.PieceData] = Json.reads[PieceData]
+    implicit val PieceDataWrites: play.api.libs.json.OWrites[shared.PieceData]= Json.writes[PieceData]
+    implicit val GameStateWrites: play.api.libs.json.OWrites[shared.GameState]= Json.writes[GameState]
+    implicit val GameStateReads: play.api.libs.json.Reads[shared.GameState]= Json.reads[GameState]
 
 
-    var board = List.empty[Piece]
-
+    
     var selectedPiece: Option[Piece] = None
-    var turn = "white"
+    var board = List.empty[Piece] //set on socket open
+    var turn = "white"  //set on socket open
     def runChess() : Unit = {
         println("trying to run chess")
         val socketRoute = document.getElementById("ws-route").asInstanceOf[html.Input].value
         var socket = new dom.WebSocket(socketRoute.replace("http", "ws"))
         socket.onopen = (event) => socket.send(Json.toJson("New user connected").toString())
-      
-  
-    
         
-        document.getElementById("currentTurn").asInstanceOf[html.Span].innerHTML = turn
         val canvas = document.getElementById("chessCanvas").asInstanceOf[html.Canvas]
         val ctx = canvas.getContext("2d")
         canvas.style.border = "1px solid black"
- 
-           socket.onmessage = (event) => {
-    Json.fromJson[GameState](Json.parse(event.data.toString())) match {
-        case JsSuccess(gameState, _) => {
-            turn = gameState.currentTurn
-            board = dataToPiece(gameState.allPieceData)
-            ctx.clearRect(0, 0, canvas.width, canvas.height)
-            drawPieces(canvas, board)
-            document.getElementById("currentTurn").asInstanceOf[html.Span].innerHTML = turn
+        socket.onmessage = (event) => {
+            Json.fromJson[GameState](Json.parse(event.data.toString())) match {
+                case JsSuccess(gameState, _) => {
+                    turn = gameState.currentTurn
+                    board = dataToPiece(gameState.allPieceData)
+                    ctx.clearRect(0, 0, canvas.width, canvas.height)
+                    drawPieces(canvas, board)
+                    document.getElementById("currentTurn").asInstanceOf[html.Span].innerHTML = turn
+                }
+                case JsError(error) => println("Issue w/ game state parse on client side ")
+            }
         }
-        case JsError(error) => println("Issue w/ game state parse on client side ")
-    }
-}
-
-
+        //this function selects pieces and does the move 
         canvas.addEventListener("mousedown", { (e0: dom.Event) =>
-         val e = e0.asInstanceOf[dom.MouseEvent] 
-         val xy = getCursorPosition(canvas, e)
-         val clickedSquare: Position =  new Position((findLetter(xy._1, canvas.width), findNum(xy._2, canvas.height)))
-        
-        selectedPiece match{
+            val e = e0.asInstanceOf[dom.MouseEvent] 
+            val xy = getCursorPosition(canvas, e)
+            val clickedSquare: Position =  new Position((findLetter(xy._1, canvas.width), findNum(xy._2, canvas.height)))
+            selectedPiece match{
             //if a piece is selected and square is clicked, try to move piece to that square 
-            case Some(piece) => { 
-                selectedPiece = None
-                //make move here 
+                case Some(piece) => { 
+                    selectedPiece = None
                 if(piece.side.equals(turn)){
-               val newBoard = makeMove(piece, clickedSquare, false)
-                
+                val newBoard = makeMove(piece, clickedSquare, false)
                 newBoard match {
                     case Some(newBoard) => {
-                   // ctx.clearRect(0, 0, canvas.width, canvas.height)
-                   // board = newBoard
-                   // drawPieces(canvas, board)
-                    switchTurns()
-                    if(isCheckmated(board, turn)){
-                        document.getElementById("currentTurn").asInstanceOf[html.Span].innerHTML = "Game over!!"
-                        println("checkmated!! game is over")
-                    }else {
+                        switchTurns()
+                        if(isCheckmated(board, turn)){
+                            document.getElementById("currentTurn").asInstanceOf[html.Span].innerHTML = "Game over!!"
+                            println("checkmated!! game is over")
+                        }else {
                         //send game data
-                        val allPieceData = getAllPieceData()
-                        val currentGameState = new GameState(turn, allPieceData)
-                        socket.send(Json.toJson(currentGameState).toString())   
-                    }
+                            val allPieceData = getAllPieceData()
+                            val currentGameState = new GameState(turn, allPieceData)
+                            socket.send(Json.toJson(currentGameState).toString())   
+                        }
                     }
                     case None => println("got none back")
                 }
-                
                 } else println("Attempting to move piece who's turn it isnt ")
             }
             //if no piece is selected, find the piece on clicked square, and select it
-            case None => board.map(piece => {
-                if(piece.curPosition.equals(clickedSquare)) {
-                  
-                    selectedPiece = Some(piece)
-                }
-            })
-        }
-    })
-        //assumes canvas is a square (not square chessboard would be weird)
-        //draws squares for board 
-       
-      board = List(
-        new Rook("white", new Position('A', 1)),
-        new Knight("white", new Position('B', 1)),
-        new Bishop("white", new Position('C', 1)),
-        new Queen("white", new Position('D',1)),
-        new King("white", new Position('E', 1)),
-        new Bishop("white", new Position('F', 1)),
-        new Knight("white", new Position('G', 1)), 
-        new Rook("white", new Position('H', 1)),
-        new Pawn("white", new Position('A', 2)),
-        new Pawn("white", new Position('B', 2)),
-        new Pawn("white", new Position('C', 2)),
-        new Pawn("white", new Position('D', 2)),
-        new Pawn("white", new Position('E', 2)),
-        new Pawn("white", new Position('F', 2)),
-        new Pawn("white", new Position('G', 2)),
-        new Pawn("white", new Position('H', 2)),
-
-        new Rook("black", new Position('A', 8)),
-        new Knight("black", new Position('B', 8)),
-        new Bishop("black", new Position('C', 8)),
-        new Queen("black", new Position('D',8)),
-        new King("black", new Position('E', 8)),
-        new Bishop("black", new Position('F', 8)),
-        new Knight("black", new Position('G', 8)), 
-        new Rook("black", new Position('H', 8)),
-        new Pawn("black", new Position('A', 7)),
-        new Pawn("black", new Position('B', 7)),
-        new Pawn("black", new Position('C', 7)),
-        new Pawn("black", new Position('D', 7)),
-        new Pawn("black", new Position('E', 7)),
-        new Pawn("black", new Position('F', 7)),
-        new Pawn("black", new Position('G', 7)),
-        new Pawn("black", new Position('H', 7))
-      )
-      drawPieces(canvas, board)
-      
+            //map is easier than find, dont wanna deal with opt stuff 
+                case None => board.map(piece => if(piece.curPosition.equals(clickedSquare)) selectedPiece = Some(piece))
+            }
+        })
     }
 
     def makeMove(piece: Piece, destination: Position, hypothetical: Boolean): (Option[List[Piece]]) = {
@@ -182,56 +107,50 @@ implicit val GameStateReads: play.api.libs.json.Reads[shared.GameState]= Json.re
                 if called in a player's move, will affect hasMoved state
                 */
                 if(!hypothetical){
-                piece match {
+                    piece match {
                     //this might cause weird behavior if trying to move one of these pieces for the first time
                     //while not in check, and the move wouldn't get you out of check
                     //will run anyways, even tho position would be reset 
-                    case pawn: Pawn => pawn.hasMoved = true 
-                    case rook: Rook => rook.hasMoved = true 
-                    case king: King => king.hasMoved = true
-                    case _ => //do nothing 
+                        case pawn: Pawn => pawn.hasMoved = true 
+                        case rook: Rook => rook.hasMoved = true 
+                        case king: King => king.hasMoved = true
+                        case _ => //do nothing 
+                    }
                 }
-            }
                 if(notInCheck(ret, turn)) return Some(ret)
                 else {
                     println("can't move there, you'd be in check")
                     piece.curPosition = previousSquare
                     return None
                 }
-                
             } 
             else{
                 println("was not in valid moves")
                 return None
             }
-
     }
-        def notInCheck(hypoBoard: List[Piece], currentPlayer: String): Boolean = {
-            var kingPos = new Position('Z', 100)
-            hypoBoard.map(piece =>{
-                piece match{
-                    case king: King => if(king.side.equals(currentPlayer)) kingPos = king.curPosition
-                    case _ => 
+    def notInCheck(hypoBoard: List[Piece], currentPlayer: String): Boolean = {
+        var kingPos = new Position('Z', 100)
+        hypoBoard.map(piece =>{
+            piece match{
+                case king: King => if(king.side.equals(currentPlayer)) kingPos = king.curPosition
+                case _ => 
                 }
             })
-     
-            val opposingPieces = hypoBoard.filter(piece => !piece.side.equals(currentPlayer))
-            var allOpposingMoves = List.empty[Position]
-            opposingPieces.map(opposingPiece => allOpposingMoves = allOpposingMoves ++ opposingPiece.validMoves(hypoBoard))
-            if(allOpposingMoves.contains(kingPos)){
-                false 
-            } 
-            else true 
-          
+        val opposingPieces = hypoBoard.filter(piece => !piece.side.equals(currentPlayer))
+        var allOpposingMoves = List.empty[Position]
+        opposingPieces.map(opposingPiece => allOpposingMoves = allOpposingMoves ++ opposingPiece.validMoves(hypoBoard))
+        if(allOpposingMoves.contains(kingPos)) false 
+        else true 
         }
-        def isCheckmated(allPieces: List[Piece], currentPlayer: String): Boolean = {
-            val playersPieces = allPieces.filter(piece => piece.side.equals(currentPlayer))
-            var checkmated = true 
-            playersPieces.map(piece =>{ 
-                val initialPosition = piece.curPosition
-                piece.validMoves(allPieces).map(candidateMove => {
-                val hypoBoard = makeMove(piece, candidateMove, true)
-                hypoBoard match {
+    def isCheckmated(allPieces: List[Piece], currentPlayer: String): Boolean = {
+        val playersPieces = allPieces.filter(piece => piece.side.equals(currentPlayer))
+        var checkmated = true 
+        playersPieces.map(piece =>{ 
+            val initialPosition = piece.curPosition
+            piece.validMoves(allPieces).map(candidateMove => {
+            val hypoBoard = makeMove(piece, candidateMove, true)
+            hypoBoard match {
                 case Some(possibleMove) => {
                     checkmated = false 
                 }
@@ -240,8 +159,8 @@ implicit val GameStateReads: play.api.libs.json.Reads[shared.GameState]= Json.re
             })
             piece.curPosition = initialPosition
         })
-            return checkmated
-        }
+        return checkmated
+    }
   
     def drawPieces(canvas: html.Canvas, pieces: List[Piece]) = {
         val ctx = canvas.getContext("2d")
@@ -261,7 +180,6 @@ implicit val GameStateReads: play.api.libs.json.Reads[shared.GameState]= Json.re
         pieces.map(piece => {
             val img= dom.document.createElement("img").asInstanceOf[dom.html.Image]
             piece match{
-              
                 case rook: Rook => {  
                     if(rook.side == "white") img.src="assets/images/wRook.jpg"
                         else  img.src = "assets/images/bRook.jpg"
@@ -346,7 +264,6 @@ implicit val GameStateReads: play.api.libs.json.Reads[shared.GameState]= Json.re
             
         }
         yNumber match {
-        
             case 8=> yCoord = 7
             case 7 => yCoord = (height * 1/8) + 10
             case 6 => yCoord = (height *2/8) + 10
@@ -358,16 +275,17 @@ implicit val GameStateReads: play.api.libs.json.Reads[shared.GameState]= Json.re
             case _  => println("invalid position in number match")
         }
         (xCoord, yCoord)
-
-    
-
     }
+
     def switchTurns() : Unit = {
         if(turn.equals("white")){
             turn = "black"
         } else turn = "white"
         println("turn is " + turn)
     }
+    //used to convert all pieces into json sendable format. 
+    //takes board variable, and converts all pieces into their Data counterpart
+    //see PieceData trait in shared for more info 
     def getAllPieceData(): List[PieceData] = {
         var ret = List.empty[PieceData]
         board.map(piece => {
@@ -379,11 +297,12 @@ implicit val GameStateReads: play.api.libs.json.Reads[shared.GameState]= Json.re
             case queen:Queen => ret::= new QueenData(queen.side, queen.curPosition.square._1.toString, queen.curPosition.square._2.toString)
             case pawn: Pawn=> ret::= new PawnData(pawn.side, pawn.curPosition.square._1.toString, pawn.curPosition.square._2.toString)
             case _ => println("unkown type in getAllPieceData")
-
                 }
             })
         ret
     }
+    //takes list of PieceDatas (after being received from server) and converts to real pieces
+    //used in deserializing json input 
     def dataToPiece(allPieceData: List[PieceData]): List[Piece] = {
         var ret = List.empty[Piece]
         allPieceData.map(pieceData => {
