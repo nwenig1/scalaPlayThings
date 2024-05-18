@@ -91,7 +91,7 @@ implicit val GameStateReads: play.api.libs.json.Reads[shared.GameState]= Json.re
                 selectedPiece = None
                 //make move here 
                 if(piece.side.equals(turn)){
-               val newBoard = makeMove(piece, clickedSquare)
+               val newBoard = makeMove(piece, clickedSquare, false)
                 
                 newBoard match {
                     case Some(newBoard) => {
@@ -165,7 +165,7 @@ implicit val GameStateReads: play.api.libs.json.Reads[shared.GameState]= Json.re
       
     }
 
-    def makeMove(piece: Piece, destination: Position): (Option[List[Piece]]) = {
+    def makeMove(piece: Piece, destination: Position, hypothetical: Boolean): (Option[List[Piece]]) = {
         val previousSquare = piece.curPosition
         var ret: List[Piece] = List.empty[Piece]
             if(piece.validMoves(board).contains(destination)){
@@ -173,8 +173,15 @@ implicit val GameStateReads: play.api.libs.json.Reads[shared.GameState]= Json.re
                 ret = board.filterNot(piece => piece.curPosition.equals(destination)) 
                 //moving piece to new destination
                 piece.curPosition = destination
-                 //for pieces where I care if they've moved yet
-                //rooks/kings for castling, pawns for the double move 
+                /*
+                 for pieces where I care if they've moved yet
+                rooks/kings for castling, pawns for the double move 
+                this function is used for checks/checkmate making a "hypothetical move"
+                pieces first moves were being ran on hypothetical moves, so pawns couldnt move twice
+                if called in a checmate/check 'check', won't affect hasMoved state
+                if called in a player's move, will affect hasMoved state
+                */
+                if(!hypothetical){
                 piece match {
                     //this might cause weird behavior if trying to move one of these pieces for the first time
                     //while not in check, and the move wouldn't get you out of check
@@ -184,6 +191,7 @@ implicit val GameStateReads: play.api.libs.json.Reads[shared.GameState]= Json.re
                     case king: King => king.hasMoved = true
                     case _ => //do nothing 
                 }
+            }
                 if(notInCheck(ret, turn)) return Some(ret)
                 else {
                     println("can't move there, you'd be in check")
@@ -222,7 +230,7 @@ implicit val GameStateReads: play.api.libs.json.Reads[shared.GameState]= Json.re
             playersPieces.map(piece =>{ 
                 val initialPosition = piece.curPosition
                 piece.validMoves(allPieces).map(candidateMove => {
-                val hypoBoard = makeMove(piece, candidateMove)
+                val hypoBoard = makeMove(piece, candidateMove, true)
                 hypoBoard match {
                 case Some(possibleMove) => {
                     checkmated = false 
