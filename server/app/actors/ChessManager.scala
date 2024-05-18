@@ -9,28 +9,17 @@ import actors.ChessActor.SendBoard
 class ChessManager extends Actor{
 
     private var allPieces = List.empty[Piece]
-    private var whitePlayer: Option[ActorRef] = None
-    private var blackPlayer: Option[ActorRef] = None
+    
     private var allConnected = List.empty[ActorRef]
     import actors.ChessManager._
 
     def receive = {
         case NewPlayer(player) => {
-            whitePlayer match {
-                case None => whitePlayer = Some(player)
-                case Some(_) =>{
-                    blackPlayer match {
-                        case None => blackPlayer = Some(player)
-                        case Some(_) =>  
-                    }
-                }
-
-            }
             allConnected ::= player
-            player ! SendBoard(allPieces)
+           // player ! SendBoard(allPieces)
         }
         case Move(sprite, board) => {
-           if(sprite.equals(Some(whitePlayer)) || sprite.equals(Some(blackPlayer))){
+
             allPieces = board
            }
            for(connected <- allConnected){
@@ -38,9 +27,7 @@ class ChessManager extends Actor{
          
         }
     }
-    }
 }
-
 
 object ChessManager{
     case class NewPlayer(player: ActorRef)

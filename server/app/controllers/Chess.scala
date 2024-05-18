@@ -14,17 +14,23 @@ import akka.actor.ActorSystem
 import akka.stream.Materializer
 import play.api.libs.streams.ActorFlow
 import akka.actor.Props
+import actors.ChessActor
+import actors.ChessManager
 
 
 
 
 @Singleton
 class Chess @Inject() (cc:ControllerComponents)(implicit system: ActorSystem, mat: Materializer) extends AbstractController(cc) {
+    val manager = system.actorOf(Props[ChessManager](), "ChessManager")
     def load() = Action{ implicit request =>
         Ok(views.html.chess())
     }
-    def socket() = Action { implicit request =>
-        ???
+    def socket() = WebSocket.accept[String, String] { request =>
+        println("getting socket")
+        ActorFlow.actorRef { out =>
+            ChessActor.props(out, manager)
+        }
     }
 
 }

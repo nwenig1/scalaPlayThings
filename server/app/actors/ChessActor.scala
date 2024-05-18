@@ -7,21 +7,22 @@ import play.api.libs.json.Json
 import play.api.libs.json.Reads
 
 import shared._
+import play.api.libs.json.JsValue
+import play.api.libs.json.JsSuccess
+import play.api.libs.json.JsError
 
 class ChessActor(out: ActorRef, manager: ActorRef) extends Actor{
     manager ! ChessManager.NewPlayer(self)
-
-//implicit val RookReads = Json.reads[Rook] 
-//implicit val BishopReads = Json.reads[Bishop] 
-//implicit val KnightReads = Json.reads[Knight] 
-//implicit val KingReads = Json.reads[King]
-//implicit val QueenReads = Json.reads[Queen]
-//implicit val PawnReads = Json.reads[Pawn]
-//implicit val PieceReads = Json.reads[Piece]
-
+    import ChessActor._
+implicit val RookDataReads = Json.reads[RookData]
     def receive = {
+       
         case s: String => {
-           
+            val optRook = Json.parse(s).asOpt[RookData]
+            optRook match { 
+                case Some(rook) => println("got rook data" + rook)
+                case None => println("issue with thing")
+            }
         }
 
     }

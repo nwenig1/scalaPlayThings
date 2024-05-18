@@ -13,10 +13,12 @@ import shared.Queen
 import shared.Knight
 import shared.Pawn
 import slinky.web.html.blockquote
+import play.api.libs.json.Json
+import shared.RookData
 
 
 object Chess {
-
+implicit val RookDataWrites = Json.writes[RookData]
     var board = List.empty[Piece]
     var selectedPiece: Option[Piece] = None
     var turn = "white"
@@ -24,7 +26,12 @@ object Chess {
         println("trying to run chess")
         val socketRoute = document.getElementById("ws-route").asInstanceOf[html.Input].value
         var socket = new dom.WebSocket(socketRoute.replace("http", "ws"))
-        
+        socket.onopen = (event) => {
+            val testRook = new Rook("white", new Position('D', 3))
+            val testRookData = new RookData(testRook.side, testRook.curPosition.square._1.toString(), testRook.curPosition.square._2.toString())
+            socket.send(Json.toJson(testRookData).toString())
+            println("tried to send rook data")
+        }
         document.getElementById("currentTurn").asInstanceOf[html.Span].innerHTML = turn
         val canvas = document.getElementById("chessCanvas").asInstanceOf[html.Canvas]
         val ctx = canvas.getContext("2d")
