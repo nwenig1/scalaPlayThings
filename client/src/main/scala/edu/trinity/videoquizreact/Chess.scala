@@ -44,8 +44,10 @@ object Chess {
                     ctx.clearRect(0, 0, canvas.width, canvas.height)
                     board = newBoard
                     drawPieces(canvas, board)
-                    //check for checkmate here???
                     switchTurns()
+                    if(isCheckmated(board, turn)){
+                        //stop game
+                    }
                     }
                     case None => println("got none back")
                 }
@@ -104,7 +106,7 @@ object Chess {
       println(testPiece.validMoves(board))
     }
 
-    def makeMove(piece: Piece, destination: Position): Option[List[Piece]] = {
+    def makeMove(piece: Piece, destination: Position): (Option[List[Piece]]) = {
         println("Attempting to move piece to square: " + destination)
         val previousSquare = piece.curPosition
         var ret: List[Piece] = List.empty[Piece]
@@ -133,7 +135,7 @@ object Chess {
                 println("was not in valid moves")
                 return None
             }
-        return Some(ret)
+
     }
         def notInCheck(hypoBoard: List[Piece], currentPlayer: String): Boolean = {
             var kingPos = new Position('Z', 100)
@@ -153,6 +155,14 @@ object Chess {
             } 
             else true 
           
+        }
+        def isCheckmated(allPieces: List[Piece], currentPlayer: String): Boolean = {
+            val playersPieces = allPieces.filter(piece => piece.side.equals(currentPlayer))
+            var playersValidMoves = List.empty[Position]
+            playersPieces.map(playersPiece => playersValidMoves=playersValidMoves ++ playersPiece.validMoves(allPieces))
+
+            return false
+
         }
   
     def drawPieces(canvas: html.Canvas, pieces: List[Piece]) = {
