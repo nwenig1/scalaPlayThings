@@ -264,18 +264,25 @@ case class Position(square: (Character, Int))
               }
               case None => {
                 //if no collision, only add it if no sideways movement 
-                //CAN JUMP PIECES ON DOUBLE MOVE RIGHT NOW 
-                if(moveVector.equals(0, 1) || moveVector.equals(0, -1)) validMoves ::= candidateMove
+                println("in no collision case with move " + candidateMove)
+                if(moveVector.equals(0, 1) || moveVector.equals(0, -1)){
+             
+                 validMoves ::= candidateMove
+                }else if(moveVector._1 != 0){
+
+                }
                 //if trying to move 2 spots, makes sure it can move one spot
                 //works bc the 2spot move will always happen after the (0, 1) move has been checked for cuz of seq order
-                if(moveVector._2 != 1 && (validMoves.contains((0, 1))|| validMoves.contains(0, -1))) validMoves::= candidateMove
+               
+               else if((moveVector._2 != 1 || moveVector._2 != -1) && (validMoves.contains((new Position(this.curPosition.square._1, this.curPosition.square._2 +1)))||
+                 validMoves.contains(new Position(this.curPosition.square._1, this.curPosition.square._2 -1)))){ 
+                  println("added " + candidateMove+ " to valid moves because of second if and no collision found")
+                  validMoves::= candidateMove
+                 }
 
               }
             }
           })
-
-          
-          
           validMoves.filter(position => inBounds(position))
         }
       }

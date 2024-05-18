@@ -19,6 +19,7 @@ object Chess {
 
     var board = List.empty[Piece]
     var selectedPiece: Option[Piece] = None
+    var turn = "white"
     def runChess() : Unit = {
         println("trying to run chess")
         val canvas = document.getElementById("chessCanvas").asInstanceOf[html.Canvas]
@@ -29,19 +30,136 @@ object Chess {
          val e = e0.asInstanceOf[dom.MouseEvent] 
          val xy = getCursorPosition(canvas, e)
          val clickedSquare: Position =  new Position((findLetter(xy._1, canvas.width), findNum(xy._2, canvas.height)))
-       // println(clickedSquare)
+        
         selectedPiece match{
             //if a piece is selected and square is clicked, try to move piece to that square 
             case Some(piece) => { 
+                selectedPiece = None
                 //make move here 
+                if(piece.side.equals(turn)){
+               val newBoard = makeMove(piece, clickedSquare)
+                
+                newBoard match {
+                    case Some(newBoard) => {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height)
+                    board = newBoard
+                    drawPieces(canvas, board)
+                    //check for checkmate here???
+                    switchTurns()
+                    }
+                    case None => println("got none back")
                 }
+                
+                } else println("Attempting to move piece who's turn it isnt ")
+            }
             //if no piece is selected, find the piece on clicked square, and select it
-            case None => board.map(piece => if(piece.curPosition.equals(clickedSquare))  selectedPiece = Some(piece))
+            case None => board.map(piece => {
+                if(piece.curPosition.equals(clickedSquare)) {
+                  
+                    selectedPiece = Some(piece)
+                }
+            })
         }
     })
         //assumes canvas is a square (not square chessboard would be weird)
         //draws squares for board 
-        val w=canvas.width
+       
+      board = List(
+        new Rook("white", new Position('A', 1)),
+        new Knight("white", new Position('B', 1)),
+        new Bishop("white", new Position('C', 1)),
+        new Queen("white", new Position('D',1)),
+        new King("white", new Position('E', 1)),
+        new Bishop("white", new Position('F', 1)),
+        new Knight("white", new Position('G', 1)), 
+        new Rook("white", new Position('H', 1)),
+        new Pawn("white", new Position('A', 2)),
+        new Pawn("white", new Position('B', 2)),
+        new Pawn("white", new Position('C', 2)),
+        new Pawn("white", new Position('D', 2)),
+        new Pawn("white", new Position('E', 2)),
+        new Pawn("white", new Position('F', 2)),
+        new Pawn("white", new Position('G', 2)),
+        new Pawn("white", new Position('H', 2)),
+
+        new Rook("black", new Position('A', 8)),
+        new Knight("black", new Position('B', 8)),
+        new Bishop("black", new Position('C', 8)),
+        new Queen("black", new Position('D',8)),
+        new King("black", new Position('E', 8)),
+        new Bishop("black", new Position('F', 8)),
+        new Knight("black", new Position('G', 8)), 
+        new Rook("black", new Position('H', 8)),
+        new Pawn("black", new Position('A', 7)),
+        new Pawn("black", new Position('B', 7)),
+        new Pawn("black", new Position('C', 7)),
+        new Pawn("black", new Position('D', 7)),
+        new Pawn("black", new Position('E', 7)),
+        new Pawn("black", new Position('F', 7)),
+        new Pawn("black", new Position('G', 7)),
+        new Pawn("black", new Position('H', 7))
+      )
+      drawPieces(canvas, board)
+      val testPiece = new Pawn("black", new Position('C', 6))
+      println(testPiece.validMoves(board))
+    }
+
+    def makeMove(piece: Piece, destination: Position): Option[List[Piece]] = {
+        println("Attempting to move piece to square: " + destination)
+        val previousSquare = piece.curPosition
+        var ret: List[Piece] = List.empty[Piece]
+            if(piece.validMoves(board).contains(destination)){
+                //gets new board if capturing a piece (piece is on the dest square)
+                ret = board.filterNot(piece => piece.curPosition.equals(destination)) 
+                //moving piece to new destination
+                piece.curPosition = destination
+                 //for pieces where I care if they've moved yet
+                //rooks/kings for castling, pawns for the double move 
+                piece match {
+                    case pawn: Pawn => pawn.hasMoved = true 
+                    case rook: Rook => rook.hasMoved = true 
+                    case king: King => king.hasMoved = true
+                    case _ => //do nothing 
+                }
+                if(notInCheck(ret, turn)) return Some(ret)
+                else {
+                    println("can't move there, you'd be in check")
+                    piece.curPosition = previousSquare
+                    return None
+                }
+                
+            } 
+            else{
+                println("was not in valid moves")
+                return None
+            }
+        return Some(ret)
+    }
+        def notInCheck(hypoBoard: List[Piece], currentPlayer: String): Boolean = {
+            var kingPos = new Position('Z', 100)
+            hypoBoard.map(piece =>{
+                piece match{
+                    case king: King => if(king.side.equals(currentPlayer)) kingPos = king.curPosition
+                    case _ => 
+                }
+            })
+     
+            val opposingPieces = hypoBoard.filter(piece => !piece.side.equals(currentPlayer))
+            var allOpposingMoves = List.empty[Position]
+            opposingPieces.map(opposingPiece => allOpposingMoves = allOpposingMoves ++ opposingPiece.validMoves(hypoBoard))
+            if(allOpposingMoves.contains(kingPos)){
+                println("king at spot " + kingPos + " would be in check ")
+                false 
+            } 
+            else true 
+          
+        }
+  
+    def drawPieces(canvas: html.Canvas, pieces: List[Piece]) = {
+        val ctx = canvas.getContext("2d")
+        //ideally this can be used to remake the board every time a move is made
+        //can also be used for initial board state, and gets passed in all the pieces and their initial positions
+         val w=canvas.width
         val h = canvas.height
         val rSize = h * 1/8
         val odds = Seq[Int](0, 2, 4, 6)
@@ -52,90 +170,6 @@ object Chess {
         for(evenRow <- evens){
             evens.map(num => ctx.fillRect(w*num/8, h*evenRow/8, rSize, rSize))
         }
-      //val startingBoard:List[Piece] = List(
-        //new Rook("white", new Position('A', 1)),
-        //new Knight("white", new Position('B', 1)),
-        //new Bishop("white", new Position('C', 1)),
-        //new Queen("white", new Position('D',1)),
-        //new King("white", new Position('E', 1)),
-        //new Bishop("white", new Position('F', 1)),
-        //new Knight("white", new Position('G', 1)), 
-        //new Rook("white", new Position('H', 1)),
-        //new Pawn("white", new Position('A', 2)),
-        //new Pawn("white", new Position('B', 2)),
-        //new Pawn("white", new Position('C', 2)),
-        //new Pawn("white", new Position('D', 2)),
-        //new Pawn("white", new Position('E', 2)),
-        //new Pawn("white", new Position('F', 2)),
-        //new Pawn("white", new Position('G', 2)),
-        //new Pawn("white", new Position('H', 2)),
-        //
-        //new Rook("black", new Position('A', 8)),
-        //new Knight("black", new Position('B', 8)),
-        //new Bishop("black", new Position('C', 8)),
-        //new Queen("black", new Position('D',8)),
-        //new King("black", new Position('E', 8)),
-        //new Bishop("black", new Position('F', 8)),
-        //new Knight("black", new Position('G', 8)), 
-        //new Rook("black", new Position('H', 8)),
-        //new Pawn("black", new Position('A', 7)),
-        //new Pawn("black", new Position('B', 7)),
-        //new Pawn("black", new Position('C', 7)),
-        //new Pawn("black", new Position('D', 7)),
-        //new Pawn("black", new Position('E', 7)),
-        //new Pawn("black", new Position('F', 7)),
-        //new Pawn("black", new Position('G', 7)),
-        //new Pawn("black", new Position('H', 7))
-        
-      //  )
-      //  drawPieces(canvas, startingBoard)
-      //  board = startingBoard //sets global board variable to starting board 
-      val testPiece = new Pawn("black", new Position('D', 7))
-      val testBoard:List[Piece] = List(
-        testPiece,
-         new Rook("white", new Position('D', 5)),
-        new Rook("black", new Position('E', 6)),
-       // new Rook("white", new Position('E', 6)),
-        //new Pawn("black", new Position('E', 4))
-      )
-      drawPieces(canvas, testBoard)
-        println(testPiece.validMoves(testBoard))
-    }
-  
-        /*do game logic to determine valid moves
-        AM NOT ACCOUNTING FOR PIECES BLOCKING MOVES IN VALID MOVES    
-        things to check for:
-            -does the new list of pieces contain the piece's sides king in check (will require new function)
-            -something along the lines of getting all pieces of the oppisite color then checking if their valid moves has the king's square in it
-            but now realizing this is hard with paths not being accounted for in valid moves (king will be in check a lot of times when it's 
-            not in reality)
-           ::: valid moves might need to change to take the game state into account due to this
-            are there any pieces on the moving path (Excluding knights), might be hard
-            ^^ will not include destination
-            if any piece of any color in the path, is none
-            if there is a friendly on the destination, is none
-            if there is an enemey on destination, do a capture, return new list of pieces minus the captured piece
-            if no pieces on path or destination, and doesn't put your side in check, return new list of pieces with that piece moved
-            
-            Piece specific things:
-            knights will not do a path check
-            pawns have to be capturing a piece to move across the x axis 
-            pawns hasMoved needs to be false to move 2 squares 
-            kings, rooks, pawns hasMoved will be set to true 
-            ideally castle? this won't happen till later tho 
-
-        */
-       
-    
-   
-    
- 
-        
-    def drawPieces(canvas: html.Canvas, pieces: List[Piece]) = {
-        val ctx = canvas.getContext("2d")
-        //ideally this can be used to remake the board every time a move is made
-        //can also be used for initial board state, and gets passed in all the pieces and their initial positions
-        
         pieces.map(piece => {
             val img= dom.document.createElement("img").asInstanceOf[dom.html.Image]
             piece match{
@@ -237,6 +271,14 @@ object Chess {
         }
         (xCoord, yCoord)
 
+    
 
     }
+    def switchTurns() : Unit = {
+        if(turn.equals("white")){
+            turn = "black"
+        } else turn = "white"
+        println("turn is " + turn)
+    }
+    
 }
