@@ -31,7 +31,6 @@ case class Position(square: (Character, Int))
       //gets all horizontal moves to the left of piece (Starting one to the left)
       //toints are needed so I can go backwards through alphabet and use by -1
       for(leftLettSquare <-((this.curPosition.square._1.toInt) - 1)  to 'A'.toInt by -1){
-        println("lett square is " + leftLettSquare.toChar)
         //get square attempting to add to
         if(notCollided){
         val candidateSquare = new Position(leftLettSquare.toChar, this.curPosition.square._2)
@@ -56,7 +55,6 @@ case class Position(square: (Character, Int))
       } //horizontal left square generator end
       notCollided = true //resets it for next path 
       for(rightLettSquare <- getAdjacentChar(this.curPosition.square._1, 1).toChar to 'H'){
-        println("lett square is " + rightLettSquare)
         //get square attempting to add to
         if(notCollided){
         val candidateSquare = new Position(rightLettSquare, this.curPosition.square._2)
@@ -264,23 +262,17 @@ case class Position(square: (Character, Int))
               }
               case None => {
                 //if no collision, only add it if no sideways movement 
-                println("in no collision case with move " + candidateMove)
                 if(moveVector.equals(0, 1) || moveVector.equals(0, -1)){
              
                  validMoves ::= candidateMove
-                }else if(moveVector._1 != 0){
-
-                }
                 //if trying to move 2 spots, makes sure it can move one spot
                 //works bc the 2spot move will always happen after the (0, 1) move has been checked for cuz of seq order
-               
-               else if((moveVector._2 != 1 || moveVector._2 != -1) && (validMoves.contains((new Position(this.curPosition.square._1, this.curPosition.square._2 +1)))||
+                }
+               else if((moveVector._2 == 2 || moveVector._2 == -2) && (validMoves.contains((new Position(this.curPosition.square._1, this.curPosition.square._2 +1)))||
                  validMoves.contains(new Position(this.curPosition.square._1, this.curPosition.square._2 -1)))){ 
-                  println("added " + candidateMove+ " to valid moves because of second if and no collision found")
                   validMoves::= candidateMove
                  }
-
-              }
+                }
             }
           })
           validMoves.filter(position => inBounds(position))

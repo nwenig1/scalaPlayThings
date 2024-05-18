@@ -22,6 +22,7 @@ object Chess {
     var turn = "white"
     def runChess() : Unit = {
         println("trying to run chess")
+        document.getElementById("currentTurn").asInstanceOf[html.Span].innerHTML = turn
         val canvas = document.getElementById("chessCanvas").asInstanceOf[html.Canvas]
         val ctx = canvas.getContext("2d")
         canvas.style.border = "1px solid black"
@@ -45,9 +46,11 @@ object Chess {
                     board = newBoard
                     drawPieces(canvas, board)
                     switchTurns()
-                    if(isCheckmated(board, turn)){
-                        //stop game
-                    }
+                    document.getElementById("currentTurn").asInstanceOf[html.Span].innerHTML = turn
+                   // if(isCheckmated(board, turn)){
+                   //     document.getElementById("currentTurn").asInstanceOf[html.Span].innerHTML = "Game over!!"
+                   //     println("checkmated!! game is over")
+                   // }
                     }
                     case None => println("got none back")
                 }
@@ -102,12 +105,10 @@ object Chess {
         new Pawn("black", new Position('H', 7))
       )
       drawPieces(canvas, board)
-      val testPiece = new Pawn("black", new Position('C', 6))
-      println(testPiece.validMoves(board))
+      
     }
 
     def makeMove(piece: Piece, destination: Position): (Option[List[Piece]]) = {
-        println("Attempting to move piece to square: " + destination)
         val previousSquare = piece.curPosition
         var ret: List[Piece] = List.empty[Piece]
             if(piece.validMoves(board).contains(destination)){
@@ -118,6 +119,9 @@ object Chess {
                  //for pieces where I care if they've moved yet
                 //rooks/kings for castling, pawns for the double move 
                 piece match {
+                    //this might cause weird behavior if trying to move one of these pieces for the first time
+                    //while not in check, and the move wouldn't get you out of check
+                    //will run anyways, even tho position would be reset 
                     case pawn: Pawn => pawn.hasMoved = true 
                     case rook: Rook => rook.hasMoved = true 
                     case king: King => king.hasMoved = true
@@ -150,7 +154,6 @@ object Chess {
             var allOpposingMoves = List.empty[Position]
             opposingPieces.map(opposingPiece => allOpposingMoves = allOpposingMoves ++ opposingPiece.validMoves(hypoBoard))
             if(allOpposingMoves.contains(kingPos)){
-                println("king at spot " + kingPos + " would be in check ")
                 false 
             } 
             else true 
@@ -158,11 +161,21 @@ object Chess {
         }
         def isCheckmated(allPieces: List[Piece], currentPlayer: String): Boolean = {
             val playersPieces = allPieces.filter(piece => piece.side.equals(currentPlayer))
-            var playersValidMoves = List.empty[Position]
-            playersPieces.map(playersPiece => playersValidMoves=playersValidMoves ++ playersPiece.validMoves(allPieces))
-
-            return false
-
+            var checkmated = true 
+            playersPieces.map(piece =>{ 
+                val initialPosition = piece.curPosition
+                piece.validMoves(allPieces).map(candidateMove => {
+                val hypoBoard = makeMove(piece, candidateMove)
+                hypoBoard match {
+                case Some(possibleMove) => {
+                    checkmated = false 
+                }
+                case None =>
+                }
+            })
+            piece.curPosition = initialPosition
+        })
+            return checkmated
         }
   
     def drawPieces(canvas: html.Canvas, pieces: List[Piece]) = {
