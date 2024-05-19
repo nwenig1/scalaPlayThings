@@ -172,6 +172,7 @@ object Chess {
         val odds = Seq[Int](0, 2, 4, 6)
         val evens = Seq[Int](1, 3, 5, 7)
         for(oddRow <- odds){
+
             odds.map(num => ctx.fillRect(w*num/8, h*oddRow/8, rSize, rSize))
         }
         for(evenRow <- evens){

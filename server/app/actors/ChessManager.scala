@@ -6,6 +6,7 @@ import collection.mutable
 import shared._
 
 import actors.ChessActor.ReceiveBoard
+import scala.concurrent.java8.FuturesConvertersImpl.P
 
 class ChessManager extends Actor{
     private val startingBoard: List[PieceData] = List(
@@ -46,21 +47,50 @@ class ChessManager extends Actor{
     
     private var currentGameState:GameState = new GameState("white", startingBoard)
     
+    private var whitePlayer:Option[ActorRef] = None
+    private var blackPlayer:Option[ActorRef] = None
     private var allConnected = List.empty[ActorRef]
     import actors.ChessManager._
 
     def receive = {
         case NewPlayer(player) => {
             println("got new player connected")
+            //makes white player the first person connected, black person second connected
+            //all others only go to allconnected
+            whitePlayer match {
+                case None=> whitePlayer = Some(player)
+                case Some(_) => blackPlayer match{
+                    case None => blackPlayer = Some(player)
+                    case Some(_) => 
+                }
+            }
             allConnected ::= player
            player ! SendBoard(currentGameState)
         }
-        case ReceiveBoard(gameState) => {
-            currentGameState = gameState
-           }
-           for(connected <- allConnected){
+        //turn changes on client, to server gets the next move. if white made a move, should be black's turn
+        case ReceiveBoard(gameState, sender) => {
+           gameState.currentTurn match{
+            case "black" => {
+                if(Some(sender).equals(whitePlayer)){
+                currentGameState = gameState
+                  for(connected <- allConnected){
          connected ! SendBoard(currentGameState)
          
+        }
+            } else println("invalid player tried to make move on white turn")
+        }
+            case "white" =>{        
+                if(Some(sender).equals(blackPlayer)){
+                    currentGameState = gameState
+                      for(connected <- allConnected){
+         connected ! SendBoard(currentGameState)
+         
+        }
+            } else println("invalid player tried to make move on black turn")
+            }
+        }
+        
+                
         }
     }
 }

@@ -43,7 +43,7 @@ implicit val GameStateReads: play.api.libs.json.Reads[shared.GameState]= Json.re
            
             val optGameState = Json.parse(s).asOpt[GameState]
             optGameState match {
-                case Some(gameState) => manager ! ReceiveBoard(gameState)
+                case Some(gameState) => manager ! ReceiveBoard(gameState, self)
                 case None => println("got none in opt parse")
             }
            
@@ -57,5 +57,5 @@ implicit val GameStateReads: play.api.libs.json.Reads[shared.GameState]= Json.re
 
 object ChessActor{
     def props(out: ActorRef, manager: ActorRef) = Props(new ChessActor(out, manager))
-    case class ReceiveBoard(gameState: GameState)
+    case class ReceiveBoard(gameState: GameState, player: ActorRef)
 }
