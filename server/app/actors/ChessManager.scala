@@ -88,6 +88,14 @@ class ChessManager extends Actor{
         }
             } else println("invalid player tried to make move on black turn")
             }
+            case "reset" => {
+                whitePlayer = None
+                blackPlayer = None
+                currentGameState = new GameState("white", startingBoard)
+                                      for(connected <- allConnected){
+         connected ! SendBoard(currentGameState)
+                                      }
+            }
         }
         
                 

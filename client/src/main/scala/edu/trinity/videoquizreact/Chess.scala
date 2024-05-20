@@ -88,6 +88,10 @@ object Chess {
                 case None => board.map(piece => if(piece.curPosition.equals(clickedSquare)) selectedPiece = Some(piece))
             }
         })
+        document.getElementById("resetGame").asInstanceOf[html.Button].addEventListener("click", { (e0: dom.Event) =>
+            socket.send(Json.toJson(new GameState("reset", List.empty[PieceData])).toString)
+        
+        })
     }
 
     def makeMove(piece: Piece, destination: Position, hypothetical: Boolean): (Option[List[Piece]]) = {
