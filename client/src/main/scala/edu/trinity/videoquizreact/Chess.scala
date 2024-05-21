@@ -74,7 +74,7 @@ object Chess {
                             println("checkmated!! game is over")
                         }else {
                         //send game data
-                            val allPieceData = getAllPieceData()
+                            val allPieceData = getAllPieceData(newBoard)
                             val currentGameState = new GameState(turn, allPieceData)
                             socket.send(Json.toJson(currentGameState).toString())   
                         }
@@ -291,9 +291,9 @@ object Chess {
     //used to convert all pieces into json sendable format. 
     //takes board variable, and converts all pieces into their Data counterpart
     //see PieceData trait in shared for more info 
-    def getAllPieceData(): List[PieceData] = {
+    def getAllPieceData(newBoard : List[Piece]): List[PieceData] = {
         var ret = List.empty[PieceData]
-        board.map(piece => {
+        newBoard.map(piece => {
             piece match {
             case rook:Rook => ret::= new RookData(rook.side, rook.curPosition.square._1.toString, rook.curPosition.square._2.toString)
             case knight: Knight => ret::= new KnightData(knight.side, knight.curPosition.square._1.toString, knight.curPosition.square._2.toString)
