@@ -1,6 +1,11 @@
 # play-scalajs-slinky
 
-This is my starter project for things that involve Play using Scala.js and
-the Slinky React binding. I'm using this as the starter for student code in
-Web Apps Spring 2021.
+This was the repository for my Web Application Developement class from Spring of 2024. Was my first web development experience, and was in the scala play framework. Server can be run locally on port 9000 with the command "sbt run" while in the repository. 
+
+
+
+
+Scala Build Tool (sbt) download: https://www.scala-sbt.org/download/ 
+
+
 
