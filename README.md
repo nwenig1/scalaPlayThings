@@ -11,6 +11,7 @@ Routes:
 /task11 : Shared drawing palette, all people connected to the page can draw and see updates in real time. Can connect with multiple pages to see this
 
 All the above were assignments for the course. The summer following, I added one more page as a side project:
+
 /chess : Chess game!! 2 players can join the page and make moves, seeing those updates in real time. Most chess features are there (checks, checkmate, etc.) execept for pawn promotions and castling. The first player to connect is white, the second is black, any others are spectators. Only white/black can move their respective sides on their turn, but spectators can reset the game whenever. 
 
 
